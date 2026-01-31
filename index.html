@@ -496,8 +496,12 @@
 </div>
 
 <!-- Hero -->
-<section class="hero" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); position: relative; overflow: hidden;">
-  <img src="assets/hero/hero-banner.png" alt="Custom Genie Products" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.3;">
+<section class="hero" style="position: relative; overflow: hidden; background: #0f172a;">
+  <picture style="position: absolute; inset: 0; width: 100%; height: 100%;">
+    <source media="(max-width: 768px)" srcset="assets/hero/hero-mobile.png">
+    <img src="assets/hero/hero-desktop.png" alt="Custom Genie Products" style="width: 100%; height: 100%; object-fit: cover;">
+  </picture>
+  <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(15,23,42,0.85) 0%, rgba(15,23,42,0.6) 100%);"></div>
   <div class="container" style="position: relative; z-index: 1;">
     <div class="hero-badge">
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
