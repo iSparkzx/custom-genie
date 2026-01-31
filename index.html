@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Genie | Bring Your Brand to Life</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #7B2D8E;
+            --primary-light: #9D4EBA;
+            --primary-dark: #5A1D6B;
+            --accent: #F7B32B;
+            --accent-glow: #FFD966;
+            --dark: #1A1423;
+            --dark-soft: #2D2438;
+            --cream: #FDF8F3;
+            --cream-dark: #F5EDE3;
+            --text: #1A1423;
+            --text-muted: #6B5F7A;
+            --white: #FFFFFF;
+            --gradient-magic: linear-gradient(135deg, #7B2D8E 0%, #9D4EBA 50%, #C77DFF 100%);
+            --gradient-gold: linear-gradient(135deg, #F7B32B 0%, #FFD966 50%, #FFF1C1 100%);
+            --gradient-hero: linear-gradient(180deg, #1A1423 0%, #2D2438 50%, #3D2E4F 100%);
+            --shadow-soft: 0 4px 20px rgba(123, 45, 142, 0.15);
+            --shadow-glow: 0 0 40px rgba(247, 179, 43, 0.3);
+            --radius: 16px;
+            --radius-sm: 8px;
+            --radius-lg: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--cream);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        /* ===== NAVIGATION ===== */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1rem 2rem;
+            transition: all 0.4s ease;
+        }
+
+        .nav.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 2px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-magic);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-soft);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-icon::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.3) 50%, transparent 60%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--white);
+            transition: color 0.4s ease;
+        }
+
+        .nav.scrolled .logo-text {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav.scrolled .nav-links a {
+            color: var(--text);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-cta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.75rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient-gold);
+            color: var(--dark);
+            box-shadow: 0 4px 15px rgba(247, 179, 43, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(247, 179, 43, 0.5);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--white);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .nav.scrolled .btn-outline {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            min-height: 100vh;
+            background: var(--gradient-hero);
+            position: relative;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(123, 45, 142, 0.4) 0%, transparent 70%);
+            filter: blur(80px);
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .hero-bg::after {
+            content: '';
+            position: absolute;
+            bottom: 10%;
+            right: -5%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(247, 179, 43, 0.3) 0%, transparent 70%);
+            filter: blur(80px);
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, -30px); }
+        }
+
+        .hero-particles {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: sparkle 4s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.5); }
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 8rem 2rem 4rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero-text {
+            animation: fadeInUp 1s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(247, 179, 43, 0.15);
+            border: 1px solid rgba(247, 179, 43, 0.3);
+            border-radius: 50px;
+            color: var(--accent);
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-badge span {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            color: var(--white);
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero h1 .highlight {
+            background: var(--gradient-gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.75);
+            margin-bottom: 2.5rem;
+            max-width: 540px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 3rem;
+            margin-top: 3.5rem;
+            padding-top: 2.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat {
+            text-align: left;
+        }
+
+        .stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .hero-visual {
+            position: relative;
+            animation: fadeInUp 1s ease 0.3s forwards;
+            opacity: 0;
+        }
+
+        .hero-image-container {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+        }
+
+        .hero-image {
+            width: 100%;
+            aspect-ratio: 4/3;
+            object-fit: cover;
+            background: linear-gradient(135deg, #3D2E4F 0%, #5A4070 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-image-placeholder {
+            padding: 3rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .hero-image-placeholder .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .floating-card {
+            position: absolute;
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 1rem 1.25rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: floatCard 4s ease-in-out infinite;
+        }
+
+        @keyframes floatCard {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .floating-card.card-1 {
+            top: 10%;
+            left: -10%;
+            animation-delay: 0s;
+        }
+
+        .floating-card.card-2 {
+            bottom: 20%;
+            right: -8%;
+            animation-delay: 1s;
+        }
+
+        .floating-card-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-magic);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .floating-card-text {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--dark);
+        }
+
+        .floating-card-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* ===== VALUE PROPS ===== */
+        .value-props {
+            background: var(--white);
+            padding: 2rem 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .value-props-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            flex-wrap: wrap;
+        }
+
+        .value-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .value-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, rgba(123, 45, 142, 0.1) 0%, rgba(123, 45, 142, 0.05) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .value-text {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .value-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* ===== CATEGORIES ===== */
+        .categories {
+            padding: 6rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 4rem;
+        }
+
+        .section-tag {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(123, 45, 142, 0.1);
+            color: var(--primary);
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .category-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-soft);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .category-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(123, 45, 142, 0.2);
+        }
+
+        .category-image {
+            height: 200px;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-image::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.3) 100%);
+        }
+
+        .category-icon {
+            font-size: 4rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .category-content {
+            padding: 1.5rem;
+        }
+
+        .category-title {
+            font-size: 1.25rem;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .category-description {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .category-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: gap 0.3s ease;
+        }
+
+        .category-link:hover {
+            gap: 0.75rem;
+        }
+
+        /* ===== FEATURED PRODUCTS ===== */
+        .featured {
+            background: var(--cream-dark);
+            padding: 6rem 2rem;
+        }
+
+        .featured-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            transition: all 0.4s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .product-image {
+            height: 240px;
+            background: linear-gradient(145deg, #f8f6f4 0%, #ebe7e2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            padding: 0.4rem 0.8rem;
+            background: var(--accent);
+            color: var(--dark);
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .product-placeholder {
+            font-size: 3rem;
+            opacity: 0.3;
+        }
+
+        .product-content {
+            padding: 1.5rem;
+        }
+
+        .product-category {
+            font-size: 0.75rem;
+            color: var(--primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-title {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .product-description {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .product-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .product-price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .product-price .from {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        .btn-sm {
+            padding: 0.6rem 1.25rem;
+            font-size: 0.875rem;
+        }
+
+        /* ===== WHY US ===== */
+        .why-us {
+            padding: 6rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .why-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .why-card {
+            padding: 2.5rem;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .why-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-magic);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .why-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .why-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, rgba(123, 45, 142, 0.1) 0%, rgba(123, 45, 142, 0.05) 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .why-title {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.75rem;
+        }
+
+        .why-text {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* ===== TESTIMONIALS ===== */
+        .testimonials {
+            background: var(--gradient-hero);
+            padding: 6rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .testimonials::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(247, 179, 43, 0.3), transparent);
+        }
+
+        .testimonials-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .testimonials .section-title {
+            color: var(--white);
+        }
+
+        .testimonials .section-subtitle {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .testimonial-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .testimonial-stars {
+            color: var(--accent);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+        }
+
+        .testimonial-text {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .testimonial-avatar {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-magic);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .testimonial-name {
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .testimonial-role {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.875rem;
+        }
+
+        /* ===== CTA ===== */
+        .cta {
+            padding: 6rem 2rem;
+            text-align: center;
+        }
+
+        .cta-inner {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 4rem 3rem;
+            box-shadow: 0 20px 60px rgba(123, 45, 142, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-inner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: var(--gradient-gold);
+        }
+
+        .cta-title {
+            font-size: clamp(1.75rem, 3vw, 2.5rem);
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .cta-text {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--dark);
+            color: rgba(255, 255, 255, 0.7);
+            padding: 5rem 2rem 2rem;
+        }
+
+        .footer-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr repeat(3, 1fr);
+            gap: 3rem;
+            margin-bottom: 4rem;
+        }
+
+        .footer-brand {
+            max-width: 300px;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-logo .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .footer-description {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .footer-column h4 {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 1.25rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .footer-bottom {
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-copy {
+            font-size: 0.875rem;
+        }
+
+        .footer-payments {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .payment-icon {
+            width: 40px;
+            height: 26px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-text {
+                order: 1;
+            }
+
+            .hero-visual {
+                order: 2;
+            }
+
+            .hero-description {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .hero-actions {
+                justify-content: center;
+            }
+
+            .hero-stats {
+                justify-content: center;
+            }
+
+            .floating-card {
+                display: none;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 1.5rem;
+                align-items: center;
+            }
+
+            .stat {
+                text-align: center;
+            }
+
+            .value-props-inner {
+                flex-direction: column;
+                align-items: center;
+                gap: 1.5rem;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .footer-brand {
+                max-width: 100%;
+            }
+
+            .footer-social {
+                justify-content: center;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-payments {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <div class="nav-inner">
+            <a href="#" class="logo">
+                <div class="logo-icon">✨</div>
+                <span class="logo-text">Custom Genie</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#products">Products</a></li>
+                <li><a href="#categories">Categories</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="nav-cta">
+                <a href="#" class="btn btn-outline">Sign In</a>
+                <a href="#" class="btn btn-primary">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-particles">
+            <div class="particle" style="top: 20%; left: 10%;"></div>
+            <div class="particle" style="top: 60%; left: 25%; animation-delay: 0.5s;"></div>
+            <div class="particle" style="top: 30%; left: 70%; animation-delay: 1s;"></div>
+            <div class="particle" style="top: 80%; left: 85%; animation-delay: 1.5s;"></div>
+            <div class="particle" style="top: 45%; left: 50%; animation-delay: 2s;"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="hero-badge">
+                    <span>✨</span> No Minimums • No Setup Fees
+                </div>
+                <h1>Bring Your <span class="highlight">Brand</span> to Life with Custom Products</h1>
+                <p class="hero-description">
+                    Premium name badges, stickers, and promotional items with full-color printing. 
+                    30+ years of excellence, delivered fast to your door.
+                </p>
+                <div class="hero-actions">
+                    <a href="#" class="btn btn-primary">Browse Products →</a>
+                    <a href="#" class="btn btn-outline">Get a Quote</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="stat-value">30+</div>
+                        <div class="stat-label">Years of Excellence</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">50K+</div>
+                        <div class="stat-label">Happy Customers</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">24hr</div>
+                        <div class="stat-label">Fast Turnaround</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-image-container">
+                    <div class="hero-image">
+                        <div class="hero-image-placeholder">
+                            <div class="icon">🖼️</div>
+                            <p>Hero Banner Image<br><small>nano banana generated image</small></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="floating-card card-1">
+                    <div class="floating-card-icon">🏷️</div>
+                    <div class="floating-card-text">Name Badges</div>
+                    <div class="floating-card-sub">From $11.46</div>
+                </div>
+                <div class="floating-card card-2">
+                    <div class="floating-card-icon">⭐</div>
+                    <div class="floating-card-text">5-Star Rated</div>
+                    <div class="floating-card-sub">2,500+ Reviews</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Value Props -->
+    <section class="value-props">
+        <div class="value-props-inner">
+            <div class="value-item">
+                <div class="value-icon">🚚</div>
+                <div>
+                    <div class="value-text">Fast Delivery</div>
+                    <div class="value-sub">Ships in 24-48 hours</div>
+                </div>
+            </div>
+            <div class="value-item">
+                <div class="value-icon">💎</div>
+                <div>
+                    <div class="value-text">Premium Quality</div>
+                    <div class="value-sub">Full-color printing</div>
+                </div>
+            </div>
+            <div class="value-item">
+                <div class="value-icon">🎯</div>
+                <div>
+                    <div class="value-text">No Minimums</div>
+                    <div class="value-sub">Order any quantity</div>
+                </div>
+            </div>
+            <div class="value-item">
+                <div class="value-icon">💰</div>
+                <div>
+                    <div class="value-text">No Setup Fees</div>
+                    <div class="value-sub">Pay only for products</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories -->
+    <section class="categories" id="categories">
+        <div class="section-header">
+            <span class="section-tag">Our Products</span>
+            <h2 class="section-title">Shop by Category</h2>
+            <p class="section-subtitle">Everything you need to elevate your brand, from professional name badges to eye-catching stickers.</p>
+        </div>
+        <div class="categories-grid">
+            <div class="category-card">
+                <div class="category-image">
+                    <span class="category-icon">🏷️</span>
+                </div>
+                <div class="category-content">
+                    <h3 class="category-title">Name Badges</h3>
+                    <p class="category-description">Professional metal and plastic name badges for your team. Full-color, durable, and customizable.</p>
+                    <a href="#" class="category-link">Shop Now <span>→</span></a>
+                </div>
+            </div>
+            <div class="category-card">
+                <div class="category-image" style="background: linear-gradient(135deg, #F7B32B 0%, #E09D18 100%);">
+                    <span class="category-icon">🌟</span>
+                </div>
+                <div class="category-content">
+                    <h3 class="category-title">Custom Stickers</h3>
+                    <p class="category-description">Domed vinyl stickers with scratch-resistant coating. Perfect for product branding.</p>
+                    <a href="#" class="category-link">Shop Now <span>→</span></a>
+                </div>
+            </div>
+            <div class="category-card">
+                <div class="category-image" style="background: linear-gradient(135deg, #3D8B7A 0%, #2A6B5D 100%);">
+                    <span class="category-icon">✏️</span>
+                </div>
+                <div class="category-content">
+                    <h3 class="category-title">Promotional Pens</h3>
+                    <p class="category-description">Custom printed pens that keep your brand in customers' hands every day.</p>
+                    <a href="#" class="category-link">Shop Now <span>→</span></a>
+                </div>
+            </div>
+            <div class="category-card">
+                <div class="category-image" style="background: linear-gradient(135deg, #4A90A4 0%, #357082 100%);">
+                    <span class="category-icon">📋</span>
+                </div>
+                <div class="category-content">
+                    <h3 class="category-title">Shelf Labels</h3>
+                    <p class="category-description">Clear, professional labeling solutions for retail and organization.</p>
+                    <a href="#" class="category-link">Shop Now <span>→</span></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section class="featured" id="products">
+        <div class="featured-inner">
+            <div class="section-header">
+                <span class="section-tag">Best Sellers</span>
+                <h2 class="section-title">Featured Products</h2>
+                <p class="section-subtitle">Our most popular items, loved by thousands of businesses.</p>
+            </div>
+            <div class="products-grid">
+                <div class="product-card">
+                    <div class="product-image">
+                        <span class="product-badge">Popular</span>
+                        <span class="product-placeholder">🏷️</span>
+                    </div>
+                    <div class="product-content">
+                        <div class="product-category">Name Badges</div>
+                        <h3 class="product-title">Executive Metal Name Badge</h3>
+                        <p class="product-description">Professional and durable metal name tags with vibrant full-color printing.</p>
+                        <div class="product-footer">
+                            <div class="product-price">$21.95</div>
+                            <a href="#" class="btn btn-primary btn-sm">Customize</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-image">
+                        <span class="product-placeholder">🌟</span>
+                    </div>
+                    <div class="product-content">
+                        <div class="product-category">Stickers</div>
+                        <h3 class="product-title">Domed Silver Vinyl Sticker Sheet</h3>
+                        <p class="product-description">Scratch-resistant epoxy coating. Perfect for indoor product branding.</p>
+                        <div class="product-footer">
+                            <div class="product-price"><span class="from">From </span>$0.19</div>
+                            <a href="#" class="btn btn-primary btn-sm">Customize</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-image">
+                        <span class="product-badge">New</span>
+                        <span class="product-placeholder">🏷️</span>
+                    </div>
+                    <div class="product-content">
+                        <div class="product-category">Name Badges</div>
+                        <h3 class="product-title">Prestige Plastic Name Badge</h3>
+                        <p class="product-description">Durable plastic badges combining vibrant printing with customization.</p>
+                        <div class="product-footer">
+                            <div class="product-price">$11.46</div>
+                            <a href="#" class="btn btn-primary btn-sm">Customize</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Us -->
+    <section class="why-us" id="about">
+        <div class="section-header">
+            <span class="section-tag">Why Custom Genie</span>
+            <h2 class="section-title">The Magic Behind Our Service</h2>
+            <p class="section-subtitle">30+ years of making promotional dreams come true.</p>
+        </div>
+        <div class="why-grid">
+            <div class="why-card">
+                <div class="why-icon">⚡</div>
+                <h3 class="why-title">Lightning Fast Delivery</h3>
+                <p class="why-text">Most orders ship within 24-48 hours. When you need it fast, we deliver.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">🎨</div>
+                <h3 class="why-title">Full-Color Printing</h3>
+                <p class="why-text">Vibrant, high-resolution prints that bring your brand to life exactly as you envision.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">🔄</div>
+                <h3 class="why-title">No Minimums</h3>
+                <p class="why-text">Order 1 or 10,000. We cater to businesses of all sizes with no minimum requirements.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">💎</div>
+                <h3 class="why-title">Premium Quality</h3>
+                <p class="why-text">30+ years of proven excellence. Quality that exceeds expectations, every time.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">🤝</div>
+                <h3 class="why-title">No Setup Fees</h3>
+                <p class="why-text">Pay only for what you order. No hidden fees, no surprises.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">💬</div>
+                <h3 class="why-title">Expert Support</h3>
+                <p class="why-text">Our team is here to help you create the perfect products for your brand.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="testimonials-inner">
+            <div class="section-header">
+                <span class="section-tag" style="background: rgba(247, 179, 43, 0.2); color: var(--accent);">Customer Love</span>
+                <h2 class="section-title">What Our Customers Say</h2>
+                <p class="section-subtitle">Join thousands of satisfied businesses.</p>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">"The name badges look amazing! Professional quality and arrived faster than expected. Our whole team loves them."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">MF</div>
+                        <div>
+                            <div class="testimonial-name">Mike Figueroa</div>
+                            <div class="testimonial-role">Operations Manager</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">"Arrived quickly and the quality exceeded our expectations. Will definitely order again for our next event."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">JA</div>
+                        <div>
+                            <div class="testimonial-name">Jason Adams</div>
+                            <div class="testimonial-role">Event Coordinator</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">"A+++ service! The custom stickers are perfect for our product packaging. Great price for the quality."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">JC</div>
+                        <div>
+                            <div class="testimonial-name">Jennifer Cohen</div>
+                            <div class="testimonial-role">Brand Manager</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <div class="cta-inner">
+            <h2 class="cta-title">Ready to Elevate Your Brand?</h2>
+            <p class="cta-text">Join 50,000+ businesses who trust Custom Genie for their promotional products.</p>
+            <a href="#" class="btn btn-primary">Start Your Order →</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <div class="logo-icon">✨</div>
+                        <span class="logo-text">Custom Genie</span>
+                    </div>
+                    <p class="footer-description">Making your promotional dreams come true since 1994. Premium quality, fast delivery, and exceptional service.</p>
+                    <div class="footer-social">
+                        <a href="#" class="social-link">f</a>
+                        <a href="#" class="social-link">in</a>
+                        <a href="#" class="social-link">ig</a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h4>Products</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Name Badges</a></li>
+                        <li><a href="#">Custom Stickers</a></li>
+                        <li><a href="#">Promotional Pens</a></li>
+                        <li><a href="#">Shelf Labels</a></li>
+                        <li><a href="#">All Products</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Company</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Careers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Returns</a></li>
+                        <li><a href="#">FAQs</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="footer-copy">© 2026 Custom Genie. All rights reserved.</p>
+                <div class="footer-payments">
+                    <div class="payment-icon"></div>
+                    <div class="payment-icon"></div>
+                    <div class="payment-icon"></div>
+                    <div class="payment-icon"></div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Navbar scroll effect
+        const nav = document.getElementById('nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth reveal on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.category-card, .product-card, .why-card, .testimonial-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
