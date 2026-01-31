@@ -1,0 +1,1445 @@
+<script
+  src="https://dynaviewcode.doogma.com/dist/dynaviewer1.2/dynaviewer.js"
+  defer
+></script>
+<!--<script-->
+<!--  src="https://cdntestdynaviewcode.doogma.com/dist/dynaviewer1.2/dynaviewer.js"-->
+<!--  defer-->
+<!--></script>-->
+<script>
+      window.currentDpParameters = {
+          original: {},
+          modified: {}
+      };
+
+
+      window.DynaViewerState = {}
+      window.DynaViewerData = {}
+
+      var uploaderField;
+
+      // dispatch changes for input that changed programmatically
+      const descriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+      const textInputElPropMod = (input) => {
+        // Check if the property is already modified or not configurable
+        const currentDescriptor = Object.getOwnPropertyDescriptor(input, 'value');
+        if (currentDescriptor && !currentDescriptor.configurable) {
+          return; // Skip if property is not configurable
+        }
+
+        // Check if we've already modified this element
+        if (input._doogmaModified) {
+          return;
+        }
+
+        Object.defineProperty(input, 'value', {
+          get: descriptor.get,
+          set: function(val) {
+            descriptor.set.call(this, val);
+            this.dispatchEvent(new Event('input', { bubbles: true }));
+          },
+          configurable: true
+        });
+
+        // Mark as modified to prevent duplicate modifications
+        input._doogmaModified = true;
+      }
+
+      const setInternalState = (canvasId, params) => {
+
+          Object.keys(params)
+          .forEach((key) => window.DynaViewerState[key] = params[key]);
+          if (canvasId) {
+              console.log('updating DynaViewerCanvas', params, window.DynaViewerState);
+              updateDynaviewerCanvas(canvasId, params);
+              storeModifiedParameters(Object.keys(params)[0], params[Object.keys(params)[0]] )
+
+              let storeModifiedParametersInSession = { [Object.keys(params)[0]]: params[Object.keys(params)[0]] };
+
+              console.log("session storage");
+              console.log(storeModifiedParametersInSession);
+
+              const eventForSessionOnUpdate = new CustomEvent("eventForSessionManagement", { detail: storeModifiedParametersInSession });
+              document.dispatchEvent(eventForSessionOnUpdate);
+          }
+      }
+
+      const storeModifiedParameters = ( modifiedParamKey, modifiedParamValue ) => {
+
+          // Ensure the modified object exists
+          if (!window.currentDpParameters.modified) {
+              window.currentDpParameters.modified = {};
+          }
+
+          // Update or add the key-value pair
+          window.currentDpParameters.modified[modifiedParamKey] = modifiedParamValue;
+
+          // Remove any keys that are named "undefined" or have undefined values
+          for (const key in window.currentDpParameters.modified) {
+              if (key === "undefined" || window.currentDpParameters.modified[key] === undefined) {
+                  delete window.currentDpParameters.modified[key];
+              }
+          }
+      }
+
+      const saveParam = (key, value) => {
+          if (key === 'dp_design') {
+            return
+          }
+
+          try {
+            const current = sessionStorage.getItem(window.DynaConfig.sessionKey)
+            let parsed = {}
+            if (current) {
+              parsed = JSON.parse(current)
+            }
+            parsed[key] = value
+            sessionStorage.setItem(window.DynaConfig.sessionKey, JSON.stringify(parsed))
+
+
+
+
+          } catch(error) {
+               console.error("An error occurred:", error.message); // Logs only the error message
+              console.error("Stack trace:", error.stack); // Logs the complete error stack
+            console.error('error saving DP params')
+
+          }
+       }
+
+      const saveParamFromDynaviewConfig = () => {
+
+          try {
+            const current = sessionStorage.getItem(window.DynaConfig.sessionKey)
+            let parsed = {}
+            if (current) {
+              parsed = JSON.parse(current)
+            }
+          //   parsed[key] = value
+
+            //storing in session from DynaConfig
+            const sessionStoreModifiers = window.DynaConfig.sessionStoreModifiers;
+            const sessionStoreModifiersArray = sessionStoreModifiers.split('|');
+            let {productOptions} = JSON.parse({{jsContext}});
+            sessionStoreModifiersArray.forEach((sessionStoreModifier) => {
+                const found = productOptions.find((i) => i.display_name.toLowerCase() === sessionStoreModifier.trim().toLowerCase());
+                if (found) {
+                    parsed[sessionStoreModifier] = found.prefill
+                }
+            })
+
+            console.log("saving session");
+            console.log(parsed);
+
+            sessionStorage.setItem(window.DynaConfig.sessionKey, JSON.stringify(parsed))
+
+
+
+
+          } catch {
+            console.error('error saving DP params')
+          }
+
+      }
+
+      const getParams = () => {
+          const current = sessionStorage.getItem(window.DynaConfig.sessionKey)
+
+          if (!current) {
+            return {}
+          }
+
+          return JSON.parse(current)
+       }
+
+      const isHexColor = (str) => {
+        return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(str);
+      }
+
+      const removeHashFromHexColor = (str) => {
+        if (isHexColor(str)) {
+          const noHash = str.replaceAll('#', '')
+          return noHash
+        } else {
+          return str
+        }
+      }
+
+      const productDataProcessor = (data) => {
+
+          let dynaViewerId = null; // Stores the value of 'dynaviewerid' custom field if found
+          const { customFields, productOptions } = data;
+          const dynamicDpParamsMap = {}; // Stores dynamic product parameters mapped by their option ID, these are variants
+          const staticDpParamsMap = {}; // Stores static product parameters mapped by custom field name, these are modifiers
+          const skuPartMap = {}; // Stores SKU part mappings based on variant groups, these are variant Groups
+
+          // Check if required data exists, throw an error if missing
+          if (!customFields || !productOptions) {
+              throw new Error('handlePDPCustomField: missing customFields or productOptions');
+          }
+
+          if (window.DynaConfig && window.DynaConfig.globalFields) {
+              // Loop through the object's entries (key-value pairs)
+              Object.entries(window.DynaConfig.globalFields).forEach(([key, value]) => {
+                // Create a new object with 'name' and 'value' properties
+                const newObject = {
+                  name: key,
+                  value: value
+                };
+                // Push the new object into the array
+                customFields.push(newObject);
+              });
+          }
+
+        console.log('customFields', customFields)
+
+          // Loop through all custom fields
+          customFields.forEach((customField) => {
+
+              //special condition id the dynaviewerid custom field is not defined with dd_
+              if (customField.name == 'dynaviewerid' ) {
+                dynaViewerId = customField.value;
+              }
+
+              if (customField.name === 'doogmaprintparameters') {
+                window.DoogmaPrintParameters = customField.value
+              }
+
+              // Check if the custom field name starts with "dd_", which indicates special handling
+              if (customField.name.indexOf('dd_') !== -1) {
+                  const cfName = customField.name.split('_'); // Extract key part of the custom field name
+                  const type = customField.value.split('_'); // Extract key part of the custom field value
+                  let found;
+
+                  // 1. If the custom field name contains "dynaviewerid", store its value
+                  if (cfName[1].toLowerCase() === 'dynaviewerid') {
+                      dynaViewerId = customField.value;
+                  // 2. If the custom field name contains "hidden", hide the corresponding modifier fields
+                  } else if (cfName[1].toLowerCase() === 'doogmaprintparameters') {
+                    window.DoogmaPrintParameters = customField.value
+                  }else if (cfName[1].toLowerCase() === 'hidden') {
+                      const hiddenFields = customField.value.split('|'); // Extract hidden field names
+                      hiddenFields.forEach((hiddenField) => {
+                          // Find matching product option based on display name
+                          const found = productOptions.find((i) => i.display_name.toLowerCase() === hiddenField.trim().toLowerCase());
+                          if (found) {
+                              // Locate and hide the corresponding form field
+                              const el = document.querySelector('[name="attribute[' + found.id + ']"]');
+                              const field = el ? el.closest('.form-field') : null;
+                              if (field) {
+                                  field.style.display = 'none';
+                              }
+                          }
+                      });
+                  // 3. If the custom field value contains "modifier_", add it to the staticDpParamsMap
+                  } else {
+                      if (type.length > 1 && type[0].includes('modifier')) {
+                          found = productOptions.find((i) => i.display_name.toLowerCase() === type[1].toLowerCase());
+                          if (found) {
+                              staticDpParamsMap[customField.name] = found;
+                          }
+                      }
+                  }
+              }
+
+              // Check if the custom field name starts with "dp_", which indicates a different type of handling
+              if (customField.name.indexOf('dp_') !== -1) {
+                  const type = customField.value.split('_');
+                  let found;
+
+                  // 4. Handle variant groups by mapping them to SKU part positions
+                  if (customField.value.indexOf('variantgroup_') > -1) {
+                      const position = type[1] ? parseInt(type[1]) : null;
+                      if (position !== null) {
+                          skuPartMap[position] = customField.name;
+                      }
+                      return;
+                  }
+
+                  // 5. Find matching product option based on display name
+                  if (type.length > 1 && customField.value.indexOf('|') === -1) {
+                      found = productOptions.find((i) => i.display_name.toLowerCase() === type[1].toLowerCase());
+                  } else if (type.length > 1 && customField.value.indexOf('|') !== -1) {
+              // check for prefix here
+                    const isSpecial = inspectCharacter(customField.value)
+                    const prefix = isSpecial !== null && isSpecial.result === true ? isSpecial.prefix : undefined
+                    const suffix = isSpecial !== null && isSpecial.isLastCharSpecial === true ? isSpecial.suffix : undefined
+                    let sanitizedValue = typeof prefix !== 'undefined' ? customField.value.slice(1) : customField.value
+
+                    if (suffix) {
+                      sanitizedValue = sanitizedValue.slice(0, -1)
+                    }
+
+                    // --- GROUP ALL PARTS UNDER dpName KEY ---
+                    let groupArr = [];
+                    sanitizedValue.split('|')
+                    .map((mod, index) => {
+                        const split = mod.split("_")
+                        return {
+                          name: split[1],
+                          useHexValue: split[0].toLowerCase().indexOf('hexmodifier') >= 0 || split[0].toLowerCase().indexOf('hexvariant') >= 0,
+                          valIndex: index
+                        }
+                    })
+                    .forEach((mod) => {
+                        const f = productOptions.find((i) => i.display_name.toLowerCase() === mod.name.toLowerCase())
+                        if (f) {
+                          groupArr.push({
+                              data: f,
+                              dpName: customField.name,
+                              useHexValue: mod.useHexValue,
+                              valIndex: mod.valIndex,
+                              prefix: prefix,
+                              suffix: suffix
+                          });
+                        }
+                    });
+                    if (groupArr.length) {
+                      dynamicDpParamsMap[customField.name] = groupArr;
+                    }
+                  } else {
+                      staticDpParamsMap[customField.name] = customField.value;
+                  }
+              //variant_Product Size|modifier_Select Layout
+              // dp_sizelayout
+
+                  // 6. If a matching product option is found, store it in the dynamic parameters map
+                  if (found) {
+                      if (!dynamicDpParamsMap[found.id]) {
+                          dynamicDpParamsMap[found.id] = [];
+                      }
+                      const entry = {
+                          data: found,
+                          dpName: customField.name
+                      };
+                      if (customField.value.toLowerCase().indexOf('hexmodifier') >= 0 ||
+                          customField.value.toLowerCase().indexOf('hexvariant') >= 0) {
+                          entry.useHexValue = true;
+                      }
+                      dynamicDpParamsMap[found.id].push(entry);
+                  }
+              }
+          });
+
+          return {
+              dynaViewerId, // Stores the value of the "dynaviewerid" custom field
+              staticDpParamsMap, // these are just the custom fields not mapped to any modifier or variant
+              dynamicDpParamsMap, // these are variants and modifiers
+              skuPartMap // these are variantgroups
+          };
+    }
+
+      const autofillStaticDpParams = (params, designId) => {
+          Object.keys(params).forEach(key => {
+              if (key === 'dd_saveddesign') {
+                const el = document.querySelector('[name="attribute['+params.dd_saveddesign.id+']"]')
+                const baseUrl = window.DynaConfig.renderUrl + '?design='+window.DynaConfig.clientId+'~'
+                if (el) {
+                  el.value = baseUrl + designId;
+                }
+              }
+
+              if (key === 'dd_saveddesignlink') {
+                const el = document.querySelector('[name="attribute['+params.dd_saveddesignlink.id+']"]')
+                if (el) {
+                  el.value = window.location.origin + window.location.pathname + '?dd_json=' +designId;
+                }
+              }
+
+              if (window.DoogmaPrintParameters && key.includes('printoutput')) {
+                let printUrl = window.DynaConfig.renderUrl + '?design=' + window.DynaConfig.clientId + '~'+ designId;
+                printUrl += window.DoogmaPrintParameters
+
+               const current = params[key]
+                if (current.id) {
+                  const el = document.querySelector('[name="attribute['+current.id+']"]')
+                      if (el) {
+                        el.value = printUrl
+                      }
+                }
+              }
+          });
+
+      }
+
+      const getInitialValueFromOptions = (data) => {
+          console.log("getInitialValueFromOptions")
+          console.log(data)
+          if (Array.isArray(data.values) && data.values.length > 0) {
+            const found = data.values.find((v) => v.selected)
+            if (found) {
+              return {
+                id: found.id,
+                dataValue: found.data,
+                label: found.label
+              }
+            }
+          } else if (data.prefill && data.prefill.indexOf('{"type":') === -1) {
+
+              return data.prefill
+          } else if (data.prefill && data.prefill.indexOf('{"type":') > -1) {
+                try {
+                  const conf = JSON.parse(data.prefill);
+                  if (conf.default) {
+                    return conf.default
+                  }
+                } catch {
+                  return undefined
+                }
+          }
+      }
+
+      const skuParser = (sku, skuPartMap) => {
+          const parts = sku.split('-');
+          const result = {}
+
+          Object.keys(skuPartMap).forEach((key, idx) => {
+            if (parts[key] && parts[key].length >= 3) {
+              result[skuPartMap[key]] = parts[key] !== key + '00' ? parts[key] : 'none'
+            }
+          })
+
+          return result
+      }
+
+      const fillDynamicDpParamsMap = (args) => {
+    const { state, dynamicDpParamsMap } = args;
+
+    console.log("dynamic param function for testing console");
+    console.log(args);
+
+    Object.keys(dynamicDpParamsMap)
+      .forEach((key) => {
+        dynamicDpParamsMap[key].forEach((current) => {
+          // console.log(current);
+          // get value from state
+          const val = state[current.dpName];
+          if (!val || !current.data) {
+            return;
+          }
+
+          // Handle grouped parameters with prefixes/suffixes
+          if (typeof current.valIndex !== 'undefined') {
+            let { customFields } = JSON.parse({{ jsContext }});
+            let connectedField = customFields.find(field => field.name === current.dpName);
+            let connectedFieldVal = connectedField.value;
+
+            //getting the modifier name
+            const parts = connectedFieldVal.split('|').filter(Boolean);
+            const first = parts[0].split('_')[1];     // "Size|"
+            let second = undefined
+            if (parts[1]) {
+              second = parts[1].split('_')[1];
+            }
+
+
+            // getting the modifiers value
+            // Step 1: Remove leading/trailing pipes and split by "_"
+            const cleaned = val.replaceAll('|', '').split('_');
+            // Step 2: Assign to variables
+            const firstValue = cleaned[0];  // "size1"
+            const secondValue = cleaned[1]; // "layout9"
+
+            // console.log("Hello********");
+            // console.log(first+":-"+firstValue)
+            // console.log(second+":-"+secondValue)
+            let groupedCurrentData = current;
+            if(current.valIndex==0){
+              handelingOptions(groupedCurrentData,firstValue,true);
+            }else{
+              handelingOptions(groupedCurrentData,secondValue,true);
+            }
+
+
+          }else{
+            handelingOptions(current,val);
+          }
+
+
+          function handelingOptions(current,val,concatVal=false){
+            console.log("current********");
+            console.log(current);
+            console.log(val);
+
+            let currentObject = current.data;
+
+
+
+            // text input or textarea
+            if (  currentObject.values.length === 0) {
+              const inpt = document.querySelector('[name="attribute[' + currentObject.id + ']"]');
+              if (inpt) {
+                inpt.value = val;
+
+                // if the input is a doogma file field, dispatch an input event
+                if (inpt && inpt.classList.contains('doogma-file-field')) {
+                  inpt.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+              }
+            } else if (currentObject.partial == "set-select") {
+
+              //finding the selected option in select
+              const selectSelectedItem = currentObject.values.find(item => item.selected === true);
+              console.log(selectSelectedItem);
+
+              if (selectSelectedItem) {
+                var selectEl = document.querySelector('[name="attribute[' + currentObject.id + ']"]');
+                selectByText(selectEl, val); // This will select the option with text "Center"
+              }
+
+            } else {
+              const selectedVal = currentObject.values.find((v) => {
+                if (Array.isArray(v.data) && current.useHexValue) {
+                  const dataRes = v.data.some((vd) => vd.toLowerCase() === val.toLowerCase());
+                  return dataRes;
+                }
+
+                if (Array.isArray(v.data) && !current.useHexValue) {
+                  return v.label === val;
+                }
+
+                // Check if v.data has image key
+                if (typeof v === 'object' && v.image) {
+                  return v.label === val;
+                }
+
+
+
+                return v.data === val;
+              });
+
+              if (selectedVal) {
+                const inpt = document.querySelector('[name="attribute[' + currentObject.id + ']"][value="' + selectedVal.id + '"]');
+                if (inpt) {
+                  inpt.click();
+                }
+              }
+            }
+          }
+
+        });
+      });
+
+
+    toggleDynaViewer(true);
+  }
+
+      // const fillDynamicDpParamsMap = (args) => {
+      //     const {state, dynamicDpParamsMap} = args
+
+      //     console.log("dynamic param fiunction for tesing console");
+      //     console.log(args)
+
+      //     Object.keys(dynamicDpParamsMap)
+      //       .forEach((key) => {
+      //         const current = dynamicDpParamsMap[key]
+      //         console.log(current)
+      //         // get value from state
+      //         const val = state[current.dpName]
+      //         if (!val || !current.data) {
+      //           return
+      //         }
+
+      //         // text input or textarea
+      //         if (current.data.values.length === 0) {
+      //           const inpt = document.querySelector('[name="attribute['+current.data.id+']"]')
+      //           if (inpt) {
+      //             inpt.value = val
+
+      //             // if the input is a doogma file field, dispatch an input event
+      //             if (inpt && inpt.classList.contains('doogma-file-field')) {
+      //               inpt.dispatchEvent(new Event('input', { bubbles: true }));
+      //             }
+      //           }
+      //         } else if(current.data.partial == "set-select"){
+
+      //             //finding the selected option in select
+      //             const selectSelectedItem = current.data.values.find(item => item.selected === true);
+      //             console.log(selectSelectedItem);
+
+      //             if( selectSelectedItem ){
+      //                 var selectEl = document.querySelector('[name="attribute['+current.data.id+']"]')
+      //                 // const selectEl = document.getElementById('mySelect');
+      //                 selectByText(selectEl, val); // This will select the option with text "Center"
+      //             }
+
+
+      //         }else {
+      //           const selectedVal = current.data.values.find((v) => {
+      //             if (Array.isArray(v.data) && current.useHexValue) {
+      //               const dataRes = v.data.some((vd) => vd.toLowerCase() === val.toLowerCase())
+      //               return dataRes
+      //             }
+
+      //             if (Array.isArray(v.data) && !current.useHexValue) {
+      //               return v.label === val
+      //             }
+
+      //             return v.data === val
+      //           })
+
+      //           if (selectedVal) {
+      //             const inpt = document.querySelector('[name="attribute['+current.data.id+']"][value="'+selectedVal.id+'"]')
+      //             if (inpt) {
+      //               inpt.click();
+      //               // console.log("prefilled input", inpt)
+      //             }
+      //           }
+      //         }
+      //     })
+
+
+      //     toggleDynaViewer(true)
+      // }
+
+
+
+      function selectByText(selectEl, text) {
+        for (let i = 0; i < selectEl.options.length; i++) {
+          if (selectEl.options[i].text.trim() === text.trim()) {
+            selectEl.selectedIndex = i;
+            break;
+          }
+        }
+      }
+      let isObservingPreviewCart = false
+      let renderLink = ''
+      const observer = new MutationObserver((mutationsList) => {
+          for (const mutation of mutationsList) {
+            if (
+              mutation.type === 'childList' ||
+              mutation.type === 'subtree'
+            ) {
+              const imgCont = mutation.target.querySelector('.productView-img-container')
+              if (imgCont) {
+                const img = document.createElement('img')
+                img.src = renderLink
+                img.classList.add('productView-image--cart')
+                imgCont.innerHTML = ''
+                imgCont.appendChild(img)
+              }
+            }
+          }
+        });
+      const observePreviewCart = (target) => {
+        if (!target) {
+          return
+        }
+        observer.observe(target, {
+                childList: true, // watches for addition/removal of child nodes
+                subtree: true,   // watches the whole descendant tree
+                attributes: true
+              });
+      }
+
+      const handleAddToCart = (originalSubmitBtn, staticParamsMap, dynaViewerCanvas) => {
+          console.log('saveDynaviewerDesign', dynaViewerCanvas)
+          saveDynaviewerDesign(dynaViewerCanvas, undefined, {
+            licenseKey: window.DynaConfig.licenseKey
+          })
+          .then((saveDesignResult) => {
+          console.log('saveDesignResult', saveDesignResult)
+          renderLink = window.DynaConfig.renderUrl+'?design='+window.DynaConfig.projectId+'~'+ saveDesignResult.designId;
+          autofillStaticDpParams(staticParamsMap, saveDesignResult.designId);
+          originalSubmitBtn.click();
+          const previewCart = document.querySelector('#previewModal');
+          if (!isObservingPreviewCart) {
+            isObservingPreviewCart = true;
+            observePreviewCart(previewCart)
+         } else {
+              waitForElement('.previewCart .productView-img-container img', () => {
+                const imgCont = document.querySelector('.previewCart .productView-img-container')
+                if (imgCont) {
+                  const img = document.createElement('img')
+                  img.src = renderLink
+                  img.classList.add('productView-image--cart')
+                  imgCont.innerHTML = ''
+                  imgCont.appendChild(img)
+                }
+              }, 25)
+
+          }
+                  // console.log('saveDesignResult', saveDesignResult)
+          // const renderLink = window.DynaConfig.renderUrl+'?design='+window.DynaConfig.projectId+'~'+ saveDesignResult.designId;
+          // fetch(window.DynaConfig.jsonAPIUrl+'/jsonprojects/'+ window.DynaConfig.projectId +'/jsons/' + saveDesignResult.designId, {
+          //     method: 'PUT',
+          //     headers: {
+          //       'Content-Type': 'application/json'
+          //     },
+          //     body: JSON.stringify({
+          //       json: {
+          //         state: window.DynaViewerState
+          //       }
+          //     })
+          // })
+          //   .then(() => {
+          //     autofillStaticDpParams(staticDpParamsMap, saveDesignResult.designId);
+          //     originalSubmitBtn.click();
+          //     waitForElement('.previewCart .productView-img-container', () => {
+          //       const imgCont = document.querySelector('.previewCart .productView-img-container')
+          //       if (imgCont) {
+          //         const img = document.createElement('img')
+          //         img.src = renderLink
+          //         img.classList.add('productView-image--cart')
+          //         imgCont.innerHTML = ''
+          //         imgCont.appendChild(img)
+          //       }
+          //     }, 25)
+          //   })
+
+          })
+         .catch((err) => {
+            console.error(err)
+          })
+      }
+
+      const waitForElement = (selector, callback, time, elapsedTime) => {
+          let newElapsedTime = time;
+          if (elapsedTime) {
+              newElapsedTime = elapsedTime + time;
+          }
+
+          if (newElapsedTime > 50000) {
+              console.log('failed to find:', selector);
+              return;
+          }
+
+          if (typeof selector !== 'string') {
+              const found = [];
+              selector.forEach((s) => {
+                  const className = s.replace(/\s/g,'');
+                  if (document.querySelector(className) !== null) {
+                      found.push(s);
+                  }
+              });
+
+              if (found.length === selector.length) {
+                  callback();
+                  return;
+              }
+          }
+
+          if (typeof selector === 'string' && document.querySelector(selector) !== null) {
+              callback();
+              return;
+          }
+          setTimeout(() => {
+              waitForElement(selector, callback, time, newElapsedTime);
+          }, time);
+      }
+      // thumb injectors
+      const injectDoogmaThumb = (val, el) => {
+          console.log('injecting doogma thumb', val, el)
+          if (el !== null) {
+              el.innerHTML = "";
+              const img = document.createElement("img");
+              img.src = val.trim();
+              img.classList.add("productView-image--cart");
+              el.appendChild(img);
+          }
+      }
+
+      const cartPreviewThumbInjector = (response) => {
+          let cartConfig = null;
+          if (!!window.doogmaStorefront.data.store.cart_config) {
+              cartConfig = JSON.parse(window.doogmaStorefront.data.store.cart_config);
+          }
+          const   quickViewVis = cartConfig !== null &&typeof cartConfig.quick_view_vis !== 'undefined' ? cartConfig.quick_view_vis : ".previewCart .productView-img-container",
+                  quickViewItem = cartConfig !== null && typeof cartConfig.quick_view_item !== 'undefined' ? cartConfig.quick_view_item : "dt.productView-info-name",
+                  quickViewItemContainer = cartConfig !== null && typeof cartConfig.quick_view_item_container !== 'undefined' ? cartConfig.quick_view_item_container : "dd",
+                  quickViewOptName = cartConfig !== null && typeof cartConfig.quick_view_opt_name !== 'undefined' ? cartConfig.quick_view_opt_name : '.previewCart .productView-info-name',
+                  cartItemThumbLabel = cartConfig !==  null && typeof cartConfig.cart_item_thumb_label !== 'undefined' ? cartConfig.cart_item_thumb_label : ['View Your Proof'];
+
+          waitForElement(quickViewVis, () => {
+
+              if (window.DynaGeneratedValues.savedDesign) {
+                  injectDoogmaThumb(window.DynaGeneratedValues.savedDesign, quickViewVisEl);
+              }
+          }, 25);
+      }
+      // end of thumb injectors
+
+
+
+
+      //will be neede if need to change the uploader div modifications
+      const uploaderDivModifications = (uploaderField) => {
+          if(!uploaderField){
+
+              document.querySelectorAll('.productView-options input.doogma-file-field').forEach(function(input) {
+                  let parentDiv = input.closest('div');
+                  let uploaderFieldValue = input.value;
+                  let uploaderFieldParentElm = uploaderField.parentElement;
+                  uploaderDivModificationsInnerFunction( uploaderFieldValue,parentDiv )
+              });
+
+          }else{
+              let uploaderFieldValue = uploaderField.value;
+              let uploaderFieldParentElm = uploaderField.parentElement;
+              uploaderDivModificationsInnerFunction( uploaderFieldValue,uploaderFieldParentElm )
+
+
+          }
+
+          function uploaderDivModificationsInnerFunction( uploaderFieldValue,uploaderFieldParentElm ){
+              const labelText = uploaderFieldParentElm.querySelector( ".dyna-uploader-fname" ).dataset.label;
+              if( uploaderFieldValue ){
+                  uploaderFieldParentElm.querySelector( ".dyna-uploader-label" ).classList.add( 'hasFile' );
+                  uploaderFieldParentElm.querySelector( ".dyna-uploader-label" ).classList.remove( 'noFile' );
+                  uploaderFieldParentElm.querySelector( ".dyna-uploader-fname" ).textContent = 'Replace ' + labelText;
+              }else{
+                  uploaderFieldParentElm.querySelector( ".dyna-uploader-label" ).classList.add( 'noFile' );
+                  uploaderFieldParentElm.querySelector( ".dyna-uploader-label" ).classList.remove( 'hasFile' );
+                  uploaderFieldParentElm.querySelector( ".dyna-uploader-fname" ).textContent = 'Upload ' + labelText;
+              }
+          }
+      }
+
+
+      const toggleDynaViewer = (active) => {
+          let trigger = document.querySelector('a.dynaViewer-trigger');
+
+          let productViewFig = document.querySelector('.productView-image')
+          let productViewImg = document.querySelector('.productView-img-container')
+          let dynaViewerWrapper = document.querySelector('#dynaviewer-wrapper')
+          const thumb = document.querySelector(window.DynaConfig.productViewThumbSelector ? window.DynaConfig.productViewThumbSelector : '.productView-thumbnail')
+          const thumbLinks = Array.from(document.querySelectorAll((window.DynaConfig.productThumbSelector? window.DynaConfig.productThumbSelector : '.productView-thumbnail') + ' a'))
+
+        if (active) {
+          productViewFig?.classList.add('disable-zoom')
+          thumbLinks.forEach((t) => t.classList.remove('is-active'))
+          trigger?.classList.add('is-active')
+          productViewImg?.classList.remove('active')
+          productViewImg?.classList.add('inactive')
+          dynaViewerWrapper?.classList.add('active')
+          dynaViewerWrapper?.classList.remove('inactive')
+          if (window.DynaViewerMiddleware && window.DynaViewerMiddleware.onShow) {
+            window.DynaViewerMiddleware.onShow()
+          }
+        } else {
+          productViewFig?.classList.remove('disable-zoom')
+          trigger?.classList.remove('is-active')
+          productViewImg?.classList.add('active')
+          productViewImg?.classList.remove('inactive')
+          dynaViewerWrapper?.classList.add('inactive')
+          dynaViewerWrapper?.classList.remove('active')
+
+          if (window.DynaViewerMiddleware && window.DynaViewerMiddleware.onHide) {
+            window.DynaViewerMiddleware.onHide()
+          }
+        }
+      }
+
+      const inspectCharacter = (text) => {
+          // Check if the input text is valid and not empty
+          if (!text || text.length === 0) {
+              console.warn("Input string is empty or null.");
+              // Return null if the input is invalid
+              return null;
+          }
+
+          // Get the first character
+          const firstChar = text.charAt(0);
+
+          // Get the last character
+          // For a single character string, lastChar will be the same as firstChar
+          const lastChar = text.charAt(text.length - 1);
+
+          // Regular expression to match a single alphanumeric character
+          // ^ asserts position at start of the string
+          // [a-zA-Z0-9] matches any letter (uppercase or lowercase) or any digit
+          // $ asserts position at the end of the string
+          // So, /^[a-zA-Z0-9]$/ matches a string that consists of exactly one alphanumeric character.
+          const alphanumericRegex = /^[a-zA-Z0-9]$/;
+
+          // Test if the first character is NOT alphanumeric
+          const isFirstCharSpecial = !alphanumericRegex.test(firstChar);
+
+          // Test if the last character is NOT alphanumeric
+          const isLastCharSpecial = !alphanumericRegex.test(lastChar);
+
+          // Determine the suffix: the last character if it's special, otherwise null
+          const suffixValue = isLastCharSpecial ? lastChar : undefined;
+
+          // Return an object with the analysis
+          return {
+              result: isFirstCharSpecial,        // Boolean: true if the first character is special
+              prefix: firstChar,                 // String: the first character of the input string
+              isLastCharSpecial: isLastCharSpecial, // Boolean: true if the last character is special
+              suffix: suffixValue,               // String/null: the last character if it is special, otherwise null
+          };
+      };
+
+      const getDefaultGroupValue = (dpName, dynamicDpParamsMap) => {
+          let filtered = [];
+          let prefix = undefined;
+          let suffix = undefined;
+          for (const [key, arr] of Object.entries(dynamicDpParamsMap)) {
+            arr.forEach((value) => {
+              if (value.dpName === dpName) {
+                filtered.push({
+                  key: key,
+                  ...value
+                });
+                if (value.prefix) {
+                  prefix = value.prefix;
+                }
+                if (value.suffix) {
+                  suffix = value.suffix;
+                }
+              }
+              if (value.rel && value.rel.dpName == dpName) {
+                filtered.push({
+                  key: key,
+                  ...value
+                });
+              }
+            });
+          }
+
+          const result = filtered.toSorted((a, b) => {
+            const aIdx = a.rel ? a.rel.valIndex : a.valIndex
+            const bIdx = b.rel ? b.rel.valIndex : b.valIndex
+            return aIdx - bIdx
+          }).map((i) => {
+            let value = ''
+            if (Array.isArray(i.data.values) && i.data.values.length > 0) {
+              const selected = i.data.values.find((v) => v.selected)
+              if (selected) {
+                value = i.useHexValue ? selected.value : selected.label
+              }
+            }
+            if (i.data.prefill) {
+              value = i.data.prefill
+            }
+            return value
+          })
+          .join('_');
+
+          if (prefix) {
+            let resultProcessed = result.replaceAll(prefix, '')
+            if (suffix) {
+              resultProcessed = resultProcessed.replaceAll(suffix, '')
+            }
+            return prefix + resultProcessed + (suffix ? suffix : prefix)
+          }
+
+          return result;
+      }
+
+      const updateGroupValue = (newValue, oldValue, index, prefix, suffix) => {
+        let oldValueProcessed = prefix ? oldValue.replaceAll(prefix, '') : oldValueProcessed
+        if (suffix) {
+          oldValueProcessed = oldValueProcessed.replaceAll(suffix, '')
+        }
+
+        const split = oldValueProcessed.split('_')
+        split[index] = newValue.toLowerCase();
+        const result = split.join('_')
+        console.log('result', result, split, index, oldValueProcessed)
+
+        if (prefix) {
+          return prefix + result + (suffix ? suffix : prefix)
+        }
+
+        return result
+      }
+
+      const updateRelValue = (viewerCanvas, value, rel, dynamicDpParamsMap) => {
+          const currentValue = typeof window.DynaViewerState[rel.dpName] === 'undefined'
+              ? getDefaultGroupValue(rel.dpName, dynamicDpParamsMap)
+              : window.DynaViewerState[rel.dpName]
+
+          const newVal = updateGroupValue(value, currentValue, rel.valIndex, rel.prefix, rel.suffix)
+        console.log('newVal', newVal)
+
+          setInternalState(viewerCanvas, {
+            [rel.dpName]: removeHashFromHexColor(newVal)
+          })
+
+      }
+
+
+      window.addEventListener('DOMContentLoaded',function () {
+
+          //saveParamFromDynaviewConfig();
+
+          const urlParams = new URLSearchParams(window.location.search)
+          const jsonLink = urlParams.get('dd_json')
+          const dynaViewerCanvas = 'dynaviewer-canvas'
+          const {dynaViewerId, staticDpParamsMap, dynamicDpParamsMap, skuPartMap} = productDataProcessor(JSON.parse({{jsContext}}))
+
+          console.log('consolong on page load, the jsontext and then variables from productDataProcessor function')
+          console.log(JSON.parse({{jsContext}}))
+          console.log(dynaViewerId, staticDpParamsMap, dynamicDpParamsMap)
+
+          const sku = document.querySelector('.productView-info-value[data-product-sku]')
+          let initialDPViewerParams = {}
+
+
+          const observer = new MutationObserver((mutations) => {
+            const latestMutation = mutations[mutations.length - 1];
+            if (latestMutation) {
+              const parsed = skuParser(latestMutation.target.innerText, skuPartMap)
+              console.log('updateDynaviewerCanvas', parsed)
+              setInternalState(dynaViewerCanvas, removeHashFromHexColor(parsed))
+            }
+          })
+
+          // if (sku) {
+          //   const initialParsedValue = skuParser(sku.innerText, skuPartMap);
+          //   Object.entries(initialParsedValue)
+          //     .forEach(([key, value]) => {
+          //       saveParam(key, value);
+          //       initialDPViewerParams[key] = value
+          //     })
+          //   observer.observe(sku, {
+          //     subtree: true,
+          //     characterData: true,
+          //     childList: true
+          //   })
+          // }
+
+
+          //adding the modifiers and their values in initialDPViewerParams for first rendering of visualization
+          Object.keys(staticDpParamsMap).forEach((key) => {
+            if (typeof staticDpParamsMap[key] === 'string') {
+              initialDPViewerParams[key] = staticDpParamsMap[key]
+            }
+
+            if (typeof staticDpParamsMap[key].prefill === 'string' && staticDpParamsMap[key].prefill !== '') {
+              initialDPViewerParams[key] = staticDpParamsMap[key].prefill
+            }
+          })
+
+          //current not getting used, keep it here as it was here
+          const debounce = (callback, waitTime) => {
+              let timer;
+              return (...args) => {
+                  clearTimeout(timer);
+                  timer = setTimeout(() => {
+                      callback(...args);
+                  }, waitTime);
+              };
+          }
+
+          // from options
+          Object.keys(dynamicDpParamsMap).forEach((key) => {
+            dynamicDpParamsMap[key].forEach((conf) => {
+
+              // inital dp params from options default value
+              const initialValue = getInitialValueFromOptions(conf.data)
+            //   console.log("initial values");
+            //   console.log(initialValue)
+              if (typeof initialValue === 'string' && typeof conf.prefix === 'undefined') {
+                  initialDPViewerParams[conf.dpName] = initialValue
+              }
+
+              if (typeof initialValue !== 'undefined' && typeof initialValue !== 'string' && typeof initialValue.id !== 'undefined' && typeof conf.prefix === 'undefined') {
+                  initialDPViewerParams[conf.dpName] = conf.useHexValue ? initialValue.dataValue : initialValue.label
+              }
+
+              // initial value for concated fields
+              if (typeof conf.prefix !== 'undefined') {
+                initialDPViewerParams[conf.dpName] = getDefaultGroupValue(conf.dpName, dynamicDpParamsMap)
+              }
+
+              // addEventListener
+              if ((conf.data.partial === 'input-file' || conf.data.partial === 'textarea' || conf.data.partial === 'input-text' || conf.data.partial === 'input-numbers') && conf.data.values.length === 0) {
+
+                const el = document.querySelector('[name="attribute['+conf.data.id+']"]')
+
+                if (conf.data.prefill.indexOf('{"type":"file') !== -1) {
+                  const uploader = document.getElementById('dyna_uploader_' + conf.data.id)
+                  const parsedConf = JSON.parse(conf.data.prefill)
+
+                  if (uploader) {
+                    let resultFieldSelector = 'attribute_text_' + conf.data.id;
+                    const resultField =  document.getElementById(resultFieldSelector);
+                    uploaderField = resultField;
+
+                    let dpName = conf.dpName;
+                    const parentDiv = resultField.closest('.form-field')
+                    const doogmaField = parentDiv.querySelector('.doogma-file-field')
+                    const deleteButton = parentDiv.querySelector('.dyna-uploader-delete')
+
+                    deleteButton.addEventListener('click', function() {
+                      uploader.value = '';
+                      doogmaField.value = '';
+                      setInternalState(dynaViewerCanvas, {
+                        [dpName]: ''
+                      })
+                      const labelText = parentDiv.querySelector( ".dyna-uploader-fname" ).dataset.label;
+                      parentDiv.querySelector( ".dyna-uploader-label" ).classList.add( 'noFile' );
+                      parentDiv.querySelector( ".dyna-uploader-label" ).classList.remove( 'hasFile' );
+                      parentDiv.querySelector( ".dyna-uploader-fname" ).textContent = 'Upload ' + labelText;
+                    })
+
+                    uploader.addEventListener('change', (e) => {
+                      console.log('uploaderChange', e.target.files)
+                        const file = e.target.files[0];
+                        if (!file) {
+                          return
+                        }
+                        const formData = new FormData();
+                        // clear warning
+                        let warningEl = parentDiv.querySelector('.dyna-uploader-warning');
+                        if (warningEl) {
+                          warningEl.remove()
+                        }
+
+                        // filenameSpan.innerText = file.name
+                        formData.append('file', file)
+
+                        fetch(`https://imageloader.doogma.com/image/upload?clientId=${window.DynaConfig.clientId}&randomize`, {
+                          method: 'POST',
+                          body: formData
+                        })
+                          .then((res) => res.json())
+                          .then((res) => {
+
+                              // resultField.value = res.origImageUrl
+
+                              // el.dispatchEvent(new Event('input', { bubbles: true }));
+
+                              // if (res.origImageMetadata) {
+                              //     const resolutionThreshold = window.DynaConfig.resolutionThreshold ? window.DynaConfig.resolutionThreshold : 500;
+                              //     if (res.origImageMetadata.widthPx < resolutionThreshold || res.origImageMetadata.heightPx < resolutionThreshold) {
+                              //       warning = document.createElement('div')
+                              //       warning.classList.add('dyna-uploader-warning')
+                              //       warning.style = 'color: red; display: block; font-size: 12px'
+
+                              //       if (typeof window.DynaConfig.uploadWarning !== 'undefined') {
+                              //         warning.innerText = window.DynaConfig.uploadWarning(res.origImageMetadata, resolutionThreshold)
+                              //       } else {
+                              //         warning.innerText = '⚠️ Your image is ' + res.origImageMetadata.widthPx + '×' + res.origImageMetadata.heightPx + ' pixels. To ensure print quality, upload an SVG or a PNG that’s at least ' + resolutionThreshold + ' pixels in both width and height.'
+                              //       }
+
+                              //       parentDiv.appendChild(warning)
+                              //     }
+                              // }
+
+                              if (res.origImageMetadata && !res.processedImages) {
+
+                                  resultField.value = res.origImageUrl;
+
+
+                              }else if(res.origImageMetadata && res.processedImages){
+                                  // const resolutionThreshold = window.DynaConfig.resolutionThreshold ? window.DynaConfig.resolutionThreshold : 500;
+                                  resultField.value = res.processedImages[0].rasterImageUrl;
+                                  console.log("pdp uploaded")
+                                  console.log(res.processedImages[0].rasterImageUrl)
+                              }else if( res.origImageUrl && res.rasterImageUrl){
+                                  resultField.value = res.rasterImageUrl;
+                              }
+
+                              const resolutionThreshold = window.DynaConfig.resolutionThreshold ? window.DynaConfig.resolutionThreshold : 500;
+                              if (
+                                ( res.origImageMetadata ) &&
+                                ( res.origImageMetadata.widthPx < resolutionThreshold || res.origImageMetadata.heightPx < resolutionThreshold )
+                              ) {
+                                warning = document.createElement('div')
+                                warning.classList.add('dyna-uploader-warning')
+                                warning.style = 'color: red; display: block; font-size: 12px'
+
+                                if (typeof window.DynaConfig.uploadWarning !== 'undefined') {
+                                  warning.innerText = window.DynaConfig.uploadWarning(res.origImageMetadata, resolutionThreshold)
+                                } else {
+                                  warning.innerText = '⚠️ Your image is ' + res.origImageMetadata.widthPx + '×' + res.origImageMetadata.heightPx + ' pixels. To ensure print quality, upload an SVG or a PNG that’s at least ' + resolutionThreshold + ' pixels in both width and height.'
+                                }
+
+                                parentDiv.appendChild(warning)
+                              }
+
+                              el.dispatchEvent(new Event('input', { bubbles: true }));
+
+
+
+                              toggleDynaViewer(true)
+                              console.log('updateDynaviewerCanvas', dynaViewerCanvas, dpName,res)
+                              console.log('res', res)
+                              uploaderDivModifications( resultField );
+                          })
+                          .catch((err) => {
+                            console.error(err)
+                          })
+                    })
+                  }
+                }
+
+                if (el && (!conf.data.prefill || conf.data.prefill.indexOf('{"type":"file') === -1)) {
+                  textInputElPropMod(el)
+                  el.addEventListener('input', (e) => {
+                      let value = e.target.value
+                      if (typeof conf.valIndex !== 'undefined') {
+                          const currentValue = typeof window.DynaViewerState[conf.dpName] === 'undefined'
+                              ? getDefaultGroupValue(conf.dpName, dynamicDpParamsMap)
+                              : window.DynaViewerState[conf.dpName]
+                          value = updateGroupValue(e.target.value, currentValue, conf.valIndex, conf.prefix, conf.suffix)
+                      }
+                      console.log('listener1', value, el)
+                      setInternalState(dynaViewerCanvas, {
+                        [conf.dpName]: removeHashFromHexColor(value)
+                      })
+
+                      if (typeof conf.rel !== 'undefined') {
+                        updateRelValue(dynaViewerCanvas,value, conf.rel, dynamicDpParamsMap)
+                      }
+                  })
+                }
+
+                if (el && (conf.data.prefill || conf.data.prefill.indexOf('{"type":"file') !== -1)) {
+                  el.addEventListener('input', (e) => {
+                      let value = e.target.value
+                      if (typeof conf.valIndex !== 'undefined') {
+                          const currentValue = typeof window.DynaViewerState[conf.dpName] === 'undefined'
+                              ? getDefaultGroupValue(conf.dpName, dynamicDpParamsMap)
+                              : window.DynaViewerState[conf.dpName]
+                          value = updateGroupValue(e.target.value, currentValue, conf.valIndex, conf.prefix, conf.suffix)
+                      }
+
+                      setInternalState(dynaViewerCanvas, {
+                        [conf.dpName]: removeHashFromHexColor(value)
+                      })
+
+                      if (typeof conf.rel !== 'undefined') {
+                        updateRelValue(dynaViewerCanvas, value, conf.rel, dynamicDpParamsMap)
+                      }
+                    //uploaderDivModifications( uploaderField );
+                  })
+                }
+
+              }else if( conf.data.partial === 'set-select' ){
+
+                 const selectEl = document.querySelector('[name="attribute['+conf.data.id+']"]')
+
+                 selectEl.addEventListener('change', (e) => {
+
+                     var selectedText = selectEl.options[selectEl.selectedIndex].text.trim();
+
+                      if (typeof conf.valIndex !== 'undefined') {
+                          const currentValue = typeof window.DynaViewerState[conf.dpName] === 'undefined'
+                              ? getDefaultGroupValue(conf.dpName, dynamicDpParamsMap)
+                              : window.DynaViewerState[conf.dpName]
+                          selectedText = updateGroupValue(selectedText, currentValue, conf.valIndex, conf.prefix, conf.suffix)
+                      }
+                      setInternalState(dynaViewerCanvas, {
+                        [conf.dpName]: removeHashFromHexColor(selectedText)
+                      })
+
+                      if (typeof conf.rel !== 'undefined') {
+                        updateRelValue(dynaViewerCanvas, selectedText, conf.rel, dynamicDpParamsMap)
+                      }
+
+                  })
+
+              } else {
+                conf.data.values.forEach((val) => {
+                  const el = document.querySelector('[name="attribute['+conf.data.id+']"][value="'+val.id+'"]')
+                  if (el) {
+                    el.addEventListener('change', (e) => {
+                      if (e.target.checked) {
+                        console.log('updateDynaviewerCanvas',conf.dpName, conf.useHexValue ? val.data[0] : val.label)
+                        let value = conf.useHexValue ? val.data[0] : val.label
+                        if (typeof conf.valIndex !== 'undefined') {
+                            const currentValue = typeof window.DynaViewerState[conf.dpName] === 'undefined'
+                                ? getDefaultGroupValue(conf.dpName, dynamicDpParamsMap)
+                                : window.DynaViewerState[conf.dpName]
+                            value = updateGroupValue(value, currentValue, conf.valIndex, conf.prefix, conf.suffix)
+                        }
+
+                        setInternalState(dynaViewerCanvas, {
+                          [conf.dpName]: removeHashFromHexColor(value)
+                        })
+
+                        if (typeof conf.rel !== 'undefined') {
+                          updateRelValue(dynaViewerCanvas, value, conf.rel, dynamicDpParamsMap)
+                        }
+                      }
+                    })
+                  }
+                })
+              }
+            })
+          })
+
+          // // from storage
+          // const paramsFromStorage = getParams()
+          // Object.keys(paramsFromStorage).forEach((key) => {
+          //   initialDPViewerParams[key] = paramsFromStorage[key]
+          // })
+          // console.log(initialDPViewerParams, 'initialDPViewerParams')
+          // setInternalState(null, initialDPViewerParams)
+
+          // renderDynaviewerDesign(dynaViewerCanvas, dynaViewerId, initialDPViewerParams, {
+          //   licenseKey: window.DynaConfig.licenseKey
+          // })
+
+      const originalSubmitBtn = document.getElementById('form-action-addToCart');
+      let submitBtn = null
+
+      if (originalSubmitBtn) {
+        submitBtn = originalSubmitBtn.cloneNode();
+        submitBtn.setAttribute('id', 'doogma-submit-btn')
+        submitBtn.setAttribute('type', 'button')
+        originalSubmitBtn.style.display = 'none';
+        originalSubmitBtn.closest('.form-action').appendChild(submitBtn)
+        submitBtn.addEventListener('click', function(event) {
+          handleAddToCart(originalSubmitBtn, staticDpParamsMap, dynaViewerCanvas)
+        })
+      }
+
+      const form = document.querySelector('form[data-cart-item-add]')
+      const productViewFig = document.querySelector('.productView-image')
+      const fields = form ? Array.from(form.querySelectorAll('input,select')) : []
+      const productViewImg = document.querySelector('.productView-img-container')
+      const dynaViewerWrapper = document.querySelector('#dynaviewer-wrapper')
+      const thumb = document.querySelector(window.DynaConfig.productViewThumbSelector ? window.DynaConfig.productViewThumbSelector : '.productView-thumbnail')
+      const thumbLinks = Array.from(document.querySelectorAll((window.DynaConfig.productThumbSelector ? window.DynaConfig.productThumbSelector : '.productView-thumbnail') + ' a'))
+
+      // const toggleDynaViewer = (active) => {
+      //   const trigger = document.querySelector('a.dynaViewer-trigger');
+
+      //   if (active) {
+      //     productViewFig?.classList.add('disable-zoom')
+      //     trigger?.classList.add('is-active')
+      //     thumbLinks.forEach((t) => t.classList.remove('is-active'))
+      //     productViewImg?.classList.remove('active')
+      //     productViewImg?.classList.add('inactive')
+      //     dynaViewerWrapper?.classList.add('active')
+      //     dynaViewerWrapper?.classList.remove('inactive')
+      //   } else {
+      //     productViewFig?.classList.remove('disable-zoom')
+      //     trigger?.classList.remove('is-active')
+      //     productViewImg?.classList.add('active')
+      //     productViewImg?.classList.remove('inactive')
+      //     dynaViewerWrapper?.classList.add('inactive')
+      //     dynaViewerWrapper?.classList.remove('active')
+      //   }
+      // }
+
+      fields.forEach((f) => {
+
+          if (f.tagName === 'SELECT') {
+
+              f.addEventListener('change', () => {
+                  if (productViewImg && dynaViewerWrapper) {
+                      // window.dispatchEvent(new Event('resize'));
+                      toggleDynaViewer(true)
+                  }
+              })
+
+          }else{
+              //this is for all input type element
+              f.addEventListener('focus', () => {
+                  if (productViewImg && dynaViewerWrapper) {
+                  // window.dispatchEvent(new Event('resize'));
+                  toggleDynaViewer(true)
+                  }
+              })
+
+          }
+
+      })
+
+      // create thumbnail
+      if (thumb && window.DynaConfig.customThumb) {
+          console.log('thumblinks createlistener', thumbLinks)
+        thumbLinks.forEach((i) => {
+          i.addEventListener('click', () => {
+            console.log('thumblink clicked', i)
+            toggleDynaViewer(false)
+          })
+        })
+
+        const clone = thumb.cloneNode(true)
+        const link = clone.querySelector('a')
+        const clonedLink = link.cloneNode(true)
+        const img = clonedLink.querySelector('img')
+        clone.replaceChild(clonedLink, link)
+
+        clonedLink.addEventListener('click', () => {
+          toggleDynaViewer(true)
+        })
+
+        clonedLink.href = '#'
+        clonedLink?.classList.add('dynaViewer-trigger')
+        img.src = window.DynaConfig.customThumb
+        img.removeAttribute('data-srcset')
+        img.removeAttribute('srcset')
+        thumb.parentNode?.insertBefore(clone, thumb.nextSibling)
+      }
+
+
+
+      if (jsonLink) {
+        console.log('jsonLink')
+        renderDynaviewerDesign(dynaViewerCanvas, window.DynaConfig.projectId + '~' + jsonLink, {}, {
+          licenseKey: window.DynaConfig.licenseKey
+        }).then((renderResult) => {
+            console.log('renderResult', renderResult)
+            window.currentDpParameters.original.value = renderResult;
+          //   const eventForSession = new CustomEvent("eventForSessionManagement", { detail: renderResult });
+          //   document.dispatchEvent(eventForSession);
+
+
+            console.log("jsonLink++++++++++++++++++++++++++++");
+            console.log(renderResult);
+            console.log(dynamicDpParamsMap);
+
+            fillDynamicDpParamsMap ({
+              state: renderResult,
+              dynamicDpParamsMap: dynamicDpParamsMap
+            })
+            uploaderDivModifications( false );
+          })
+      } else {
+
+          //if session available then updating the initial dpparams to dpParams store in seesion
+              if( window.DynaConfig.sessionInclude && window.DynaConfig.sessionInclude == 'yes' ){
+                  // console.log("updating the session")
+                  // console.log(initialDPViewerParams)
+
+                  // Retrieve stored data from localStorage
+                  let storedData = localStorage.getItem("DoogmaStorageParams");
+
+                  if (storedData) {
+                      storedData = JSON.parse(storedData); // Convert JSON string to object
+
+                      // Loop through storedData and update/insert into initialDPViewerParams
+                      for (const key in storedData) {
+                          if (storedData.hasOwnProperty(key)) {
+                              initialDPViewerParams[key] = storedData[key]; // Update or insert
+                          }
+                      }
+
+                      console.log("Updated initialDPViewerParams with Session:", initialDPViewerParams);
+                  }
+              }
+          //END
+
+          window.DynaViewerData = {designId: dynaViewerId, initialDPViewerParams}
+          renderDynaviewerDesign(dynaViewerCanvas, dynaViewerId, initialDPViewerParams, {
+              licenseKey: window.DynaConfig.licenseKey
+          }).then((renderResult) => {
+              console.log("renderResult++++++++++++++++++++++++++++");
+              console.log(renderResult);
+
+              window.currentDpParameters.original.value = renderResult;
+
+              // const eventForSession = new CustomEvent("eventForSessionManagement", { detail: renderResult });
+              // document.dispatchEvent(eventForSession);
+              window.DynaViewerState = JSON.parse(JSON.stringify(initialDPViewerParams))
+
+              if( window.DynaConfig.sessionInclude && window.DynaConfig.sessionInclude == 'yes' ){
+                  fillDynamicDpParamsMap ({
+                      state: renderResult,
+                      dynamicDpParamsMap: dynamicDpParamsMap
+                  })
+              }
+              uploaderDivModifications( false );
+          })
+
+      }
+    })
+</script>

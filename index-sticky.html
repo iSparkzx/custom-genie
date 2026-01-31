@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Genie | Custom Name Badges, Stickers & Promotional Products</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #1a1a1a;
+      --bg-darker: #111111;
+      --bg-card: #222222;
+      --yellow: #ffd700;
+      --yellow-bright: #ffe135;
+      --yellow-dark: #daa520;
+      --white: #ffffff;
+      --gray-100: #f5f5f5;
+      --gray-200: #e5e5e5;
+      --gray-300: #d4d4d4;
+      --gray-400: #a3a3a3;
+      --gray-500: #737373;
+      --gray-600: #525252;
+      --text-light: rgba(255,255,255,0.9);
+      --text-muted: rgba(255,255,255,0.6);
+      --font: 'Archivo', system-ui, sans-serif;
+      --radius: 12px;
+      --radius-lg: 20px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg-dark);
+      color: var(--white);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; border: none; background: none; }
+    ul { list-style: none; }
+
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 20px; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px 32px;
+      font-weight: 700;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-radius: var(--radius);
+      transition: all 0.3s ease;
+    }
+    .btn-yellow {
+      background: var(--yellow);
+      color: var(--bg-dark);
+    }
+    .btn-yellow:hover {
+      background: var(--yellow-bright);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(255,215,0,0.3);
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--white);
+      border: 2px solid var(--white);
+    }
+    .btn-outline:hover {
+      background: var(--white);
+      color: var(--bg-dark);
+    }
+    .btn-dark {
+      background: var(--bg-darker);
+      color: var(--white);
+      border: 2px solid var(--gray-600);
+    }
+    .btn-dark:hover {
+      border-color: var(--yellow);
+      color: var(--yellow);
+    }
+
+    /* Announcement Bar */
+    .announcement {
+      background: var(--yellow);
+      color: var(--bg-dark);
+      padding: 10px 20px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .announcement strong { font-weight: 900; }
+
+    /* Header */
+    .header {
+      background: var(--bg-darker);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo img { height: 40px; filter: brightness(0) invert(1); }
+    .nav-desktop { display: none; gap: 32px; }
+    .nav-desktop a {
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+    .nav-desktop a:hover { color: var(--yellow); }
+    .header-actions { display: flex; align-items: center; gap: 8px; }
+    .icon-btn {
+      width: 44px; height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: var(--radius); color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .icon-btn:hover { background: rgba(255,255,255,0.1); color: var(--yellow); }
+    .icon-btn svg { width: 22px; height: 22px; }
+
+    /* Hero Section */
+    .hero {
+      position: relative;
+      min-height: 600px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+    }
+    .hero-bg {
+      position: absolute;
+      right: -10%;
+      bottom: -10%;
+      width: 70%;
+      max-width: 700px;
+      opacity: 0.9;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 60px 0 80px;
+      max-width: 600px;
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,215,0,0.15);
+      border: 1px solid var(--yellow);
+      color: var(--yellow);
+      padding: 8px 16px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 64px);
+      font-weight: 900;
+      line-height: 1.05;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: -1px;
+    }
+    .hero h1 span { color: var(--yellow); }
+    .hero-subtitle {
+      font-size: 18px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+    .hero-price {
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .hero-offer {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--yellow);
+      color: var(--bg-dark);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* Marquee */
+    .marquee {
+      background: var(--yellow);
+      padding: 16px 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .marquee-track {
+      display: flex;
+      animation: marquee 30s linear infinite;
+    }
+    .marquee-content {
+      display: flex;
+      gap: 48px;
+      padding-right: 48px;
+    }
+    .marquee-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--bg-dark);
+      font-weight: 700;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+    .marquee-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--bg-dark);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .marquee-icon svg { width: 18px; height: 18px; color: var(--yellow); }
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Products Section */
+    .products-section {
+      padding: 80px 0;
+    }
+    .section-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .section-header h2 {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 900;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .section-header p {
+      color: var(--text-muted);
+      font-size: 16px;
+    }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .product-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .product-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .product-image {
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      background: var(--bg-darker);
+    }
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s;
+    }
+    .product-card:hover .product-image img {
+      transform: scale(1.05);
+    }
+    .product-content {
+      padding: 24px;
+    }
+    .product-content h3 {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .product-content p {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* Features Section */
+    .features-section {
+      padding: 80px 0;
+      background: var(--bg-darker);
+    }
+    .features-layout {
+      display: grid;
+      gap: 48px;
+    }
+    .features-image {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .features-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .features-content h2 {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 900;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      line-height: 1.1;
+    }
+    .features-content > p {
+      color: var(--text-muted);
+      font-size: 16px;
+      margin-bottom: 32px;
+    }
+    .features-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .feature-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--yellow);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .feature-icon img { width: 28px; height: 28px; }
+    .feature-text h4 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .feature-text p {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    /* Reviews Section */
+    .reviews-section {
+      padding: 80px 0;
+    }
+    .reviews-grid {
+      display: grid;
+      gap: 24px;
+    }
+    .review-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .review-stars {
+      display: flex;
+      gap: 4px;
+      color: var(--yellow);
+      margin-bottom: 16px;
+    }
+    .review-stars svg { width: 20px; height: 20px; }
+    .review-text {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+    .review-author {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .reviews-images {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding: 24px 0;
+      margin: 0 -20px;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+    .review-image {
+      flex: 0 0 280px;
+      aspect-ratio: 1;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .review-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      padding: 80px 0;
+      background: var(--bg-darker);
+      text-align: center;
+    }
+    .cta-section h2 {
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 900;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .cta-section p {
+      color: var(--text-muted);
+      font-size: 18px;
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+
+    /* Trust Logos */
+    .trust-section {
+      padding: 60px 0;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .trust-section h3 {
+      text-align: center;
+      font-size: 16px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+    .trust-logos {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 32px;
+      opacity: 0.5;
+    }
+    .trust-logos img {
+      height: 32px;
+      filter: brightness(0) invert(1);
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--bg-darker);
+      padding: 64px 0 32px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .footer-grid {
+      display: grid;
+      gap: 40px;
+      margin-bottom: 48px;
+    }
+    .footer-brand p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-top: 16px;
+      line-height: 1.7;
+    }
+    .footer-column h4 {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+    }
+    .footer-links li { margin-bottom: 12px; }
+    .footer-links a {
+      color: var(--text-muted);
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--yellow); }
+    .footer-newsletter {
+      background: var(--bg-card);
+      padding: 32px;
+      border-radius: var(--radius-lg);
+    }
+    .footer-newsletter h4 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .footer-newsletter p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    .newsletter-form {
+      display: flex;
+      gap: 8px;
+    }
+    .newsletter-form input {
+      flex: 1;
+      padding: 14px 16px;
+      background: var(--bg-darker);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius);
+      color: var(--white);
+      font-size: 14px;
+    }
+    .newsletter-form input::placeholder { color: var(--gray-500); }
+    .newsletter-form button {
+      padding: 14px 24px;
+      background: var(--yellow);
+      color: var(--bg-dark);
+      font-weight: 700;
+      border-radius: var(--radius);
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+    .footer-bottom {
+      padding-top: 32px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+      text-align: center;
+    }
+    .footer-bottom span {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .footer-social {
+      display: flex;
+      gap: 12px;
+    }
+    .social-link {
+      width: 40px;
+      height: 40px;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .social-link:hover {
+      background: var(--yellow);
+      color: var(--bg-dark);
+    }
+    .social-link svg { width: 18px; height: 18px; }
+
+    /* Responsive */
+    @media (min-width: 768px) {
+      .nav-desktop { display: flex; }
+      .menu-toggle { display: none; }
+      .hero { min-height: 700px; }
+      .hero-content { max-width: 550px; }
+      .features-layout {
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+      }
+      .reviews-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .footer-grid {
+        grid-template-columns: 2fr 1fr 1fr 2fr;
+      }
+      .footer-bottom {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .hero-bg {
+        right: 0;
+        width: 55%;
+      }
+      .products-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Announcement -->
+<div class="announcement">
+  <strong>$20 OFF</strong> Orders Over $150 — Use Code: <strong>GENIE20</strong>
+</div>
+
+<!-- Header -->
+<header class="header">
+  <div class="container">
+    <div class="header-inner">
+      <a href="#" class="logo">
+        <img src="assets/brand/logo.png" alt="Custom Genie">
+      </a>
+      <nav class="nav-desktop">
+        <a href="#">Name Badges</a>
+        <a href="#">Stickers</a>
+        <a href="#">Pens</a>
+        <a href="#">Labels</a>
+        <a href="#">All Products</a>
+      </nav>
+      <div class="header-actions">
+        <button class="icon-btn" aria-label="Account">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        </button>
+        <button class="icon-btn" aria-label="Cart">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        </button>
+        <button class="icon-btn menu-toggle" aria-label="Menu">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <img src="assets/hero/hero-sticky-bg.png" alt="" class="hero-bg">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-tag">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
+        Ships in 24-48 Hours
+      </div>
+      <h1>Custom <span>Name Badges</span> & Stickers</h1>
+      <p class="hero-subtitle">Premium quality custom products with no minimums and no setup fees.</p>
+      <div class="hero-price">100 Custom Stickers for $35</div>
+      <div class="hero-offer">Limited Time Offer</div>
+      <div class="hero-actions">
+        <a href="#" class="btn btn-yellow">Get Deal</a>
+        <a href="#" class="btn btn-outline">Shop All</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Marquee -->
+<div class="marquee">
+  <div class="marquee-track">
+    <div class="marquee-content">
+      <div class="marquee-item">
+        <span class="marquee-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>
+        Low Minimum Order
+      </div>
+      <div class="marquee-item">
+        <span class="marquee-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg></span>
+        Highly Rated
+      </div>
+      <div class="marquee-item">
+        <span class="marquee-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>
+        Quick Turnaround
+      </div>
+      <div class="marquee-item">
+        <span class="marquee-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>
+        No Hidden Fees
+      </div>
+      <div class="marquee-item">
+        <span class="marquee-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></span>
+        30+ Years Experience
+      </div>
+    </div>
+    <div class="marquee-content">
+      <div class="marquee-item">
+        <span class="marquee-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>
+        Low Minimum Order
+      </div>
+      <div class="marquee-item">
+        <span class="marquee-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg></span>
+        Highly Rated
+      </div>
+      <div class="marquee-item">
+        <span class="marquee-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>
+        Quick Turnaround
+      </div>
+      <div class="marquee-item">
+        <span class="marquee-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>
+        No Hidden Fees
+      </div>
+      <div class="marquee-item">
+        <span class="marquee-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></span>
+        30+ Years Experience
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Products Section -->
+<section class="products-section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Our Best Selling Products</h2>
+      <p>Premium quality products trusted by 10,000+ businesses</p>
+    </div>
+    <div class="products-grid">
+      <a href="#" class="product-card">
+        <div class="product-image">
+          <img src="assets/products/sticky-badges.png" alt="Custom Name Badges">
+        </div>
+        <div class="product-content">
+          <h3>Custom Name Badges</h3>
+          <p>Professional metal and plastic badges with full-color printing</p>
+        </div>
+      </a>
+      <a href="#" class="product-card">
+        <div class="product-image">
+          <img src="assets/products/sticky-stickers.png" alt="Custom Stickers">
+        </div>
+        <div class="product-content">
+          <h3>Custom Stickers</h3>
+          <p>Weatherproof vinyl stickers cut to any shape</p>
+        </div>
+      </a>
+      <a href="#" class="product-card">
+        <div class="product-image">
+          <img src="assets/products/sticky-labels.png" alt="Custom Labels">
+        </div>
+        <div class="product-content">
+          <h3>Custom Labels</h3>
+          <p>Professional labels for products and packaging</p>
+        </div>
+      </a>
+      <a href="#" class="product-card">
+        <div class="product-image">
+          <img src="assets/products/sticky-pens.png" alt="Promotional Pens">
+        </div>
+        <div class="product-content">
+          <h3>Promotional Pens</h3>
+          <p>Custom printed pens for events and giveaways</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+  <div class="container">
+    <div class="features-layout">
+      <div class="features-image">
+        <img src="assets/hero/features-illustration.png" alt="Quality Features">
+      </div>
+      <div class="features-content">
+        <h2>Printed to Last</h2>
+        <p>We use high-end durable materials printed with eco-solvent ink made to withstand years of use.</p>
+        <a href="#" class="btn btn-yellow" style="margin-bottom: 32px;">Shop Products</a>
+        <div class="features-list">
+          <div class="feature-item">
+            <div class="feature-icon">
+              <img src="assets/icons/uv.svg" alt="UV">
+            </div>
+            <div class="feature-text">
+              <h4>UV Protective Laminate</h4>
+              <p>Prevents your products from fading</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">
+              <img src="assets/icons/vibrant.svg" alt="Vibrant">
+            </div>
+            <div class="feature-text">
+              <h4>Vibrant Colors</h4>
+              <p>Printed with certified eco-solvent ink</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">
+              <img src="assets/icons/durable.svg" alt="Durable">
+            </div>
+            <div class="feature-text">
+              <h4>Built to Last</h4>
+              <p>Long-lasting durability for years of use</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">
+              <img src="assets/icons/weather.svg" alt="Weather">
+            </div>
+            <div class="feature-text">
+              <h4>Weatherproof</h4>
+              <p>Sticks to anything, survives the dishwasher</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Reviews Section -->
+<section class="reviews-section">
+  <div class="container">
+    <div class="section-header">
+      <h2>What Our Customers Say</h2>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-card">
+        <div class="review-stars">
+          <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        </div>
+        <p class="review-text">"Our team badges look amazing. The quality exceeded our expectations and they arrived super fast!"</p>
+        <span class="review-author">Sarah M. — HR Director</span>
+      </div>
+      <div class="review-card">
+        <div class="review-stars">
+          <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        </div>
+        <p class="review-text">"5 years ordering from Custom Genie. Best prices, best service, best product. Period."</p>
+        <span class="review-author">James T. — Operations Manager</span>
+      </div>
+      <div class="review-card">
+        <div class="review-stars">
+          <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        </div>
+        <p class="review-text">"Vibrant colors and they stick to everything! Perfect for our product packaging."</p>
+        <span class="review-author">Lisa P. — Marketing Director</span>
+      </div>
+    </div>
+    <div class="reviews-images">
+      <div class="review-image">
+        <img src="assets/reviews/review-1.png" alt="Customer stickers">
+      </div>
+      <div class="review-image">
+        <img src="assets/reviews/review-2.png" alt="Customer badges">
+      </div>
+      <div class="review-image">
+        <img src="assets/reviews/review-3.png" alt="Customer products">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="container">
+    <h2>Products Cut to Your Design</h2>
+    <p>Premium quality products are the fastest and easiest way to promote your business, product, brand, or event.</p>
+    <a href="#" class="btn btn-yellow">Shop All Products</a>
+  </div>
+</section>
+
+<!-- Trust Section -->
+<section class="trust-section">
+  <div class="container">
+    <h3>Brands That Trust Us</h3>
+    <div class="trust-logos">
+      <img src="assets/logos/logo-1.svg" alt="Brand">
+      <img src="assets/logos/logo-2.svg" alt="Brand">
+      <img src="assets/logos/logo-3.svg" alt="Brand">
+      <img src="assets/logos/logo-4.svg" alt="Brand">
+      <img src="assets/logos/logo-5.svg" alt="Brand">
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="logo">
+          <img src="assets/brand/logo.png" alt="Custom Genie" style="filter: brightness(0) invert(1); height: 36px;">
+        </a>
+        <p>Premium custom name badges, stickers, and promotional products since 1990. Trusted by 10,000+ businesses nationwide.</p>
+      </div>
+      <div class="footer-column">
+        <h4>Products</h4>
+        <ul class="footer-links">
+          <li><a href="#">Name Badges</a></li>
+          <li><a href="#">Custom Stickers</a></li>
+          <li><a href="#">Promotional Pens</a></li>
+          <li><a href="#">Labels & Tags</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h4>Company</h4>
+        <ul class="footer-links">
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Shipping</a></li>
+          <li><a href="#">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="footer-newsletter">
+        <h4>Stay Updated</h4>
+        <p>Sign up for exclusive deals and new product announcements.</p>
+        <form class="newsletter-form">
+          <input type="email" placeholder="Enter your email">
+          <button type="submit">Sign Up</button>
+        </form>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Custom Genie. All rights reserved.</span>
+      <div class="footer-social">
+        <a href="#" class="social-link" aria-label="Facebook">
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </a>
+        <a href="#" class="social-link" aria-label="Instagram">
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a>
+        <a href="#" class="social-link" aria-label="YouTube">
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        </a>
+        <a href="#" class="social-link" aria-label="LinkedIn">
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

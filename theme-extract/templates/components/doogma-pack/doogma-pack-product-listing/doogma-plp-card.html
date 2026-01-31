@@ -1,0 +1,178 @@
+{{assignVar "dynaviewerid" 'empty'}}
+{{#each custom_fields}} 
+ {{#if name '===' 'dd_dynaviewerid'}}
+    {{assignVar "dynaviewerid" value}}
+ {{/if}} 
+{{/each}}
+{{inject 'currentProductId' id}}
+{{inject 'currentCustomFields' custom_fields}}
+<script>
+
+    // //condition to ony run the script if product is dynaviewer product
+    // {{#all (getVar "dynaviewerid") (if (getVar "dynaviewerid") '!=' 'empty')}}
+    //     var ctx = JSON.parse({{jsContext}});
+    
+    //     //rendering the product canvas
+    //         console.log("event Listened"+ctx.currentProductId)
+    //         // Ensure the function is available before calling it
+    //         if (typeof window.renderPLPCanvas === "function") {
+    //             window.renderPLPCanvas(ctx.currentProductId, ctx.currentCustomFields);
+    //         } else {
+    //             console.error("renderPLPCanvas function is not defined.");
+    //         }
+    //     //END rendering the product canvas
+    // {{/all}}
+    
+</script>
+<article
+    class="card
+    {{#if alternate}} card--alternate{{/if}}"
+    data-test="card-{{id}}"
+    data-event-type="{{event}}"
+    data-entity-id="{{id}}"
+    data-position="{{position}}"
+    data-name="{{name}}"
+    data-product-category="
+    {{#each category}}
+        {{#if @last}}
+            {{this}}
+        {{else}}
+            {{this}},
+        {{/if}}
+    {{/each}}"
+    data-product-brand="{{brand.name}}"
+    data-product-price="
+    {{#or customer (unless settings.hide_price_from_guests)}}
+        {{#if price.with_tax}}
+            {{price.with_tax.value}}
+        {{else}}
+            {{price.without_tax.value}}
+        {{/if}}
+    {{else}}
+        {{lang 'common.login_for_pricing'}}
+    {{/or}}"
+>
+    <figure class="card-figure">
+        {{#if stock_level '===' 0}}
+            {{#if theme_settings.pdp_sold_out_label '===' ''}}
+                {{> components/products/product-badge
+                    badge-type='sold-out'
+                    badge_view=theme_settings.product_sold_out_badges
+                    badge_label=(lang "page_builder.pdp_sold_out_label")
+                }}
+            {{else}}
+                {{> components/products/product-badge
+                    badge-type='sold-out'
+                    badge_view=theme_settings.product_sold_out_badges
+                    badge_label=theme_settings.pdp_sold_out_label
+                }}
+            {{/if}}
+        {{else}}
+            {{#or price.sale_price_with_tax.value price.sale_price_without_tax.value}}
+                {{#if theme_settings.pdp_sale_badge_label '===' ''}}
+                    {{> components/products/product-badge
+                        badge-type='sale'
+                        badge_view=theme_settings.product_sale_badges
+                        badge_label=(lang "page_builder.pdp_sale_badge_label")
+                    }}
+                {{else}}
+                    {{> components/products/product-badge
+                        badge-type='sale'
+                        badge_view=theme_settings.product_sale_badges
+                        badge_label=theme_settings.pdp_sale_badge_label
+                    }}
+                {{/if}}
+            {{/or}}
+        {{/if}}
+
+        <a href="{{url}}"
+           class="card-figure__link"
+           aria-label="{{> components/products/product-info}}"
+           data-event-type="product-click"
+        >
+            
+            <div class="card-img-container">
+                <div class="doogma-session-available-wrapper">
+                    <!--//if session not available we have to show the default admin image of the products-->
+                    <div class="doogma-session-available">
+                        {{#all (getVar "dynaviewerid") (if (getVar "dynaviewerid") '!=' 'empty')}}
+                            <div class="dynaviewer-wrapper {{getVar 'dynaviewerid'}}">
+                                <canvas id="dyna_{{id}}"></canvas>
+                            </div>
+                        {{else}}
+                            {{> components/common/responsive-img
+                                image=image
+                                class="card-image"
+                                fallback_size=theme_settings.productgallery_size
+                                lazyload=theme_settings.lazyload_mode
+                                default_image=theme_settings.default_image_product
+                            }}
+                        {{/all}}
+                    </div>
+                    <div class="doogma-session-not-available">
+                        {{> components/common/responsive-img
+                            image=image
+                            class="card-image"
+                            fallback_size=theme_settings.productgallery_size
+                            lazyload=theme_settings.lazyload_mode
+                            default_image=theme_settings.default_image_product
+                        }}
+                    </div>
+                </div>
+            </div>
+            
+        </a>
+    </figure>
+    <div class="card-body">
+        <div class="card-info">
+            {{#all brand.name theme_settings.show_brand}}
+                <p class="card-brand color-secondary f-size-small f-size-tiny-tb f-size-mini-mb m-b-8" data-test-info-type="brandName">{{brand.name}}</p>
+            {{/all}}
+            <a class="card-title f-semibold f-root f-size-small-tb f-size-tiny-mb w-s-normal m-b-8" aria-label="{{> components/products/product-info}}" href="{{url}}" data-event-type="product-click">{{name}}<span class="card-name"></span></a>
+            {{#all show_rating theme_settings.show_rating}}
+                <p class="card-text m-b-8" data-test-info-type="productRating">
+                    <span class="rating--small">
+                        {{> components/products/ratings rating_target=name rating=rating}}
+                    </span>
+                </p>
+            {{/all}}
+            {{#if summary}}
+                <div class="card-desc m-b-8 f-size-small">{{{summary}}}</div>
+            {{/if}}
+            {{> components/products/bulk-discount-rates}}
+        </div>
+        <div class="card-text m-b-8 f-root" data-test-info-type="price">
+            {{#or customer (unless settings.hide_price_from_guests)}}
+                {{> components/products/price price=price price-range-custom=true}}
+            {{else}}
+                {{> components/common/login-for-pricing}}
+            {{/or}}
+        </div>
+        
+    </div>
+</article>
+
+<script>
+//condition to ony run the script if product is dynaviewer product
+    {{#all (getVar "dynaviewerid") (if (getVar "dynaviewerid") '!=' 'empty')}}
+        var ctx = JSON.parse({{jsContext}});
+    
+        //rendering the product canvas
+            console.log("event Listened"+ctx.currentProductId);
+            // Ensure the function is available before calling it
+            if (typeof window.renderPLPCanvas === "function") {
+                window.renderPLPCanvas(ctx.currentProductId, ctx.currentCustomFields);
+            } else {
+                console.error("renderPLPCanvas function is not defined.");
+            }
+        //END rendering the product canvas
+    {{/all}}
+</script> 
+
+
+ 
+
+
+
+
+

@@ -1,0 +1,30 @@
+{{inject 'noCompareMessage' (lang 'compare.no_compare')}}
+
+{{#if category.products}}
+    {{> components/products/filter sort=pagination.category.sort}}
+
+    <div data-list-name="Category: {{category.name}}" role="region" aria-label="{{lang 'category.product_label'}}">
+            <ul class="productGrid productListing halo-content" data-layout="{{#if theme_settings.product_list_display_mode '==' 'grid2'}}product-col2{{else if theme_settings.product_list_display_mode '==' 'grid3'}}product-col3{{else if theme_settings.product_list_display_mode '==' 'grid4'}}product-col4{{/if}}">
+                {{#each category.products}}
+                <li class="product halo-item-child doogma-pack-plp-list">
+                    <!--doogma--customization-plp-card-->
+                        {{>components/doogma-pack/doogma-pack-product-listing/doogma-plp-card settings=../settings show_compare=../show_compare show_rating=../settings.show_product_rating theme_settings=../theme_settings customer=../customer event=../event position=(add @index 1)}}
+                </li>
+                {{/each}}
+            </ul>
+    </div>
+
+    {{> components/common/paginator pagination.category}}
+{{else}}
+    {{#if category.search_error}}
+        <p>{{lang 'search.errorMessage'}}</p>
+    {{else}}
+        <p data-no-products-notification
+           role="alert"
+           aria-live="assertive"
+           tabindex="-1"
+        >
+            {{lang 'categories.no_products'}}
+        </p>
+    {{/if}}
+{{/if}}

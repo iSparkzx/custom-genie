@@ -1,0 +1,25 @@
+/* === Home footer signup: narrower & less empty blue space === */
+@media (min-width: 992px) {
+  /* The blue block you found */
+  .page-home .bg-global.content {
+    max-width: 960px;              /* try 820–1080px to taste */
+    margin: 0 auto;                /* center it */
+    padding: 28px 32px !important; /* reduce tall/side padding */
+    border-radius: 12px;           /* optional, softer corners */
+    min-height: auto !important;   /* ignore any hero min-height */
+  }
+
+  /* Stop flex from pushing columns to the far edges */
+  .page-home .bg-global.content.d-flex {
+    justify-content: center !important;  /* or: space-around */
+    gap: 20px;                            /* space between text & form */
+  }
+
+  /* Keep each column readable, not too wide */
+  .page-home .bg-global.content > * {
+    max-width: 520px;
+    flex: 0 1 520px;
+  }
+}
+
+
