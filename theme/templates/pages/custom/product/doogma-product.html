@@ -1,0 +1,692 @@
+---
+product:
+    videos:
+        limit: {{theme_settings.productpage_videos_count}}
+    reviews:
+        limit: {{theme_settings.productpage_reviews_count}}
+    related_products:
+        limit: {{theme_settings.productpage_related_products_count}}
+    similar_by_views:
+        limit: {{theme_settings.productpage_similar_by_views_count}}
+---
+{{inject 'productId' product.id}}
+{{inject 'productOptions' product.options}}
+{{inject 'customFields' product.custom_fields}}
+{{#partial "page"}}
+    {{#each product.shipping_messages}}
+        {{> components/common/alert/alert-info message}}
+    {{/each}}
+
+    <div class="prd{{product.id}} doogma-dynaviewer-product doogma-right-sticky-class">
+        <div class="container container-1600">
+            <div class="breadcrumb-wrapper">
+                {{> components/common/breadcrumbs breadcrumbs=breadcrumbs}} 
+            </div>
+            {{> components/doogma-pack/doogma-pack-product/doogma-product-view productsnew=products.new}}            
+
+            <article class="productView-description c-b">
+                {{#if theme_settings.show_product_details_tabs}}
+                    {{> components/products/description-tabs}}
+                {{else}}
+                    {{> components/products/description}}
+                {{/if}}
+            </article>
+        </div>
+
+        {{> components/products/reviews reviews=product.reviews product=product urls=urls}}
+
+        {{{region name="product_below_content--global"}}}
+        {{{region name="product_below_content"}}}
+
+        {{#if theme_settings.prodPageBlock_1 '==' 'Related'}}
+            {{> components/products/related
+                products=product.related_products
+                productsnew=products.new
+                title=theme_settings.prodPageBlock_1_title
+                block_column=theme_settings.prodPageBlock_col
+                block_layout=theme_settings.prodPageBlock_1_layout
+                block_id="halo-related-products"
+                list="Related Products"
+            }}
+        {{else if theme_settings.prodPageBlock_1 '==' 'Customers'}}
+            {{> components/products/related
+                products=product.similar_by_views
+                productsnew=products.new
+                title=theme_settings.prodPageBlock_1_title
+                block_column=theme_settings.prodPageBlock_col
+                block_layout=theme_settings.prodPageBlock_1_layout
+                block_id="halo-similar-products"
+                list="Customers Also Viewed"
+            }}
+        {{/if}}
+
+        {{#if theme_settings.prodPageBlock_2 '==' 'Related'}}
+            {{> components/products/related
+                products=product.related_products
+                productsnew=products.new
+                title=theme_settings.prodPageBlock_2_title
+                block_column=theme_settings.prodPageBlock_col
+                block_layout=theme_settings.prodPageBlock_2_layout
+                block_id="halo-related-products"
+                list="Related Products"
+            }}
+        {{else if theme_settings.prodPageBlock_2 '==' 'Customers'}}
+            {{> components/products/related
+                products=product.similar_by_views
+                productsnew=products.new
+                title=theme_settings.prodPageBlock_2_title
+                block_column=theme_settings.prodPageBlock_col
+                block_layout=theme_settings.prodPageBlock_2_layout
+                block_id="halo-similar-products"
+                list="Customers Also Viewed"
+            }}
+        {{/if}}
+
+        {{> components/halothemes/product/halo-recent-viewed-products}}
+    </div>
+
+    {{> components/products/schema}}
+	
+	{{> components/doogma-pack/doogma-pack-product/doogma-pdp-script}}
+    {{> components/doogma-pack/session-pack/session-management}}
+    
+    <script>
+   (function () {
+  const CANVAS_ID = 'dynaviewer-canvas';
+  const WRAPPER_ID = 'dynaviewer-wrapper';
+
+  // 1. Inject CSS
+  const style = document.createElement('style');
+  style.innerHTML = `
+  
+    .productView-image.disable-zoom .easyzoom-flyout{
+        display:none;
+    }
+
+    .zoom-toggle {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+    //   background: rgba(0,0,0,.6);
+      border-radius: 50%;
+      padding: 6px;
+      cursor: pointer;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events:auto;
+    }
+
+    .zoom-toggle .icon {
+      display: block;
+      width: 34px;
+      height: 34px;
+      color: #fff;
+      font-size: 18px;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .fullscreen-wrapper {
+      position: fixed !important;
+      left: 0;
+      top: 0;
+      width: 100vw !important;
+      height: 100vh !important;
+      z-index: 999999;
+      background: #0000006e;
+      display: flex;
+      align-items: start;
+      justify-content: center;
+    }
+
+    .fullscreen-wrapper .zoom-toggle {
+      bottom: auto;
+      top: 12px;
+      right: 12px;
+      background: rgba(0,0,0,.7);
+    }
+
+    .fullscreen-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 999998;
+    }
+
+    body.visual-fullscreen {
+      overflow: hidden;
+    }
+    .doogma-canvas-zoom header {
+      z-index: 0;
+    }
+    .doogma-canvas-zoom #dynaviewer-canvas {
+  margin-bottom: 20px;
+}
+.doogma-canvas-zoom {
+  pointer-events: none;
+}
+.doogma-canvas-zoom .zoom-toggle {
+  background: transparent;
+  pointer-events: auto;
+}
+.doogma-canvas-zoom .zoom-toggle .icon {
+  width: 48px;
+  height: 48px;
+}
+.doogma-canvas-zoom .zoom-canvas-wrapper {
+  height: 98%;
+  max-width: 947px;
+  position: relative;
+  width: 100%;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+}
+.doogma-canvas-zoom .zoom-toggle .icon svg {
+  height: 48px !important;
+  width: 48px !important;
+}
+body:not(.doogma-canvas-zoom) .zoom-canvas-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 1000px){
+   .doogma-canvas-zoom .zoom-canvas-wrapper {
+  margin: auto;
+  width: 90%;
+  height: 60%;
+}
+.doogma-canvas-zoom .zoom-toggle .icon svg {
+  height: 40px !important;
+  width: 40px !important;
+}
+}
+@media (max-width: 440px){
+   .doogma-canvas-zoom {
+  width: 70%;
+  overflow: hidden;
+}
+.doogma-canvas-zoom .zoom-toggle .icon svg {
+  height: 35px !important;
+  width: 35px !important;
+}
+}
+  `;
+  document.head.appendChild(style);
+
+  // 2. Wait for DOM and Canvas
+  document.addEventListener('DOMContentLoaded', () => {
+    const wrapper = document.getElementById(WRAPPER_ID);
+    const canvas = document.getElementById(CANVAS_ID);
+    if (!wrapper || !canvas) return;
+
+    // 3. Inject SVG Icons
+    // const expandIcon = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    //   <polyline points="4 14 4 20 10 20"/>
+    //   <polyline points="20 10 20 4 14 4"/>
+    //   <line x1="4" y1="4" x2="10" y2="10"/>
+    //   <line x1="14" y1="14" x2="20" y2="20"/>
+    // </svg>`;
+    
+    const expandIcon = `<svg width="32px" height="32px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <path stroke="#ccc" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8.5V4M4 4H8.5M4 4L9.5 9.5M20 8.5V4M20 4H15.5M20 4L14.5 9.5M4 15.5V20M4 20H8.5M4 20L9.5 14.5M20 15.5V20M20 20H15.5M20 20L14.5 14.5"></path>
+</svg>`;
+
+    const shrinkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M15 15l6 6m-6-6v4.8m0-4.8h4.8"></path>
+  <path d="M9 19.8V15m0 0H4.2M9 15l-6 6"></path>
+  <path d="M15 4.2V9m0 0h4.8M15 9l6-6"></path>
+  <path d="M9 4.2V9m0 0H4.2M9 9L3 3"></path>
+</svg>`;
+
+    // 4. Create zoom toggle button
+    const toggle = document.createElement('div');
+    toggle.className = 'zoom-toggle';
+    toggle.innerHTML = `<span class="icon expand">${expandIcon}</span>`;
+    wrapper.appendChild(toggle);
+    
+    
+    //wrap canvas and zoom icon into a div
+    if (wrapper) {
+        // Create the new wrapper div
+        const zoomWrapper = document.createElement('div');
+        zoomWrapper.className = 'zoom-canvas-wrapper';
+    
+        // Move all existing children into the new wrapper
+        while (wrapper.firstChild) {
+            zoomWrapper.appendChild(wrapper.firstChild);
+        }
+    
+        // Append the new wrapper to the original wrapper
+        wrapper.appendChild(zoomWrapper);
+    }
+    
+
+    let isFullscreen = false;
+    let originalWrapperStyle = '';
+    let originalCanvasStyle = '';
+
+    function enterFullscreen() {
+      if (isFullscreen) return;
+      isFullscreen = true;
+      
+      document.body.classList.add('doogma-canvas-zoom');
+
+      originalWrapperStyle = wrapper.getAttribute('style') || '';
+      originalCanvasStyle = canvas.getAttribute('style') || '';
+
+    //   const backdrop = document.createElement('div');
+    //   backdrop.className = 'fullscreen-backdrop';
+    //   backdrop.setAttribute('data-fullscreen-backdrop', 'true');
+    //   document.body.appendChild(backdrop);
+
+      wrapper.classList.add('fullscreen-wrapper');
+      document.body.classList.add('visual-fullscreen');
+
+      toggle.innerHTML = `<span class="icon shrink">${shrinkIcon}</span>`;
+    }
+
+    function exitFullscreen() {
+      if (!isFullscreen) return;
+      isFullscreen = false;
+      
+      document.body.classList.remove('doogma-canvas-zoom');
+
+      const backdrop = document.querySelector('[data-fullscreen-backdrop]');
+      if (backdrop) backdrop.remove();
+
+      wrapper.classList.remove('fullscreen-wrapper');
+      document.body.classList.remove('visual-fullscreen');
+
+      toggle.innerHTML = `<span class="icon expand">${expandIcon}</span>`;
+      wrapper.setAttribute('style', originalWrapperStyle);
+      canvas.setAttribute('style', originalCanvasStyle);
+    }
+
+    // toggle.addEventListener('click', () => {
+    //   if (isFullscreen) {
+    //     exitFullscreen();
+    //   } else {
+    //     enterFullscreen();
+    //   }
+    // });
+    
+    // Add both click and touch support
+    ['click', 'touchend'].forEach(evt => {
+      toggle.addEventListener(evt, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (isFullscreen) {
+          exitFullscreen();
+        } else {
+          enterFullscreen();
+        }
+      });
+    });
+
+    document.addEventListener('keyup', (e) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        exitFullscreen();
+      }
+    });
+  });
+})();
+
+
+//Badges Conditional
+jQuery(document).ready(function(){
+    if(jQuery('div.productView').hasClass('badgeprod')){
+    jQuery('div[data-xname="Select Layout"] input[type="radio"]').on('change',function(ev){
+            $val=jQuery(this).val();
+            jQuery('div[data-xname="Title"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Font2"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Font2size"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Customcolor2"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Name"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Font1"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Font1size"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Customcolor1"]').removeClass('hidden-field');
+            jQuery('div[data-xname="text 1 vertical align"]').removeClass('hidden-field');
+            jQuery('div[data-xname="text 2 vertical align"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Image"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Alignment"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Logo Placement"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Uploaded Logo Size"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Uploaded Logo Size"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Name Placement H"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Title Placement H"]').removeClass('hidden-field');
+            
+            jQuery('div[data-xname="Badge Text"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Font3"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Font3size"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Customcolor3"]').removeClass('hidden-field');
+            jQuery('div[data-xname="text 3 vertical align"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Badge Text Placement H"]').removeClass('hidden-field');
+            
+            
+            jQuery('div[data-xname="Name Placement H"] input').val("1");
+            jQuery('div[data-xname="Title Placement H"] input').val("1");
+            jQuery('div[data-xname="Badge Text Placement H"] input').val("1");
+            
+            jQuery('div[data-xname="Name Placement V"] input').val("1");
+            jQuery('div[data-xname="Title Placement V"] input').val("1");
+            jQuery('div[data-xname="Badge Text Placement V"] input').val("1");
+            
+            jQuery('div[data-xname="Logo Placement"] input').val("1");
+            jQuery('div[data-xname="Logo Placement V"] input').val("1");
+            
+            
+            if($val=='1307' || $val=="1308" || $val=="1310"){
+                jQuery('div[data-xname="Title"]').addClass('hidden-field');
+                jQuery('div[data-xname="Title"] input').val("");
+                jQuery('div[data-xname="Font2"]').addClass('hidden-field');
+                jQuery('div[data-xname="Font2size"]').addClass('hidden-field');
+                jQuery('div[data-xname="Customcolor2"]').addClass('hidden-field');
+                jQuery('div[data-xname="text 2 vertical align"]').addClass('hidden-field');
+                jQuery('div[data-xname="Title Placement H"]').addClass('hidden-field');
+                
+                jQuery('div[data-xname="Badge Text"] input').val("");
+                jQuery('div[data-xname="Badge Text"]').addClass('hidden-field');
+                jQuery('div[data-xname="Font3"]').addClass('hidden-field');
+                jQuery('div[data-xname="Font3size"]').addClass('hidden-field');
+                jQuery('div[data-xname="Customcolor3"]').addClass('hidden-field');
+                jQuery('div[data-xname="text 3 vertical align"]').addClass('hidden-field');
+                jQuery('div[data-xname="Badge Text Placement H"]').addClass('hidden-field');
+            } else if($val=='1311'){
+                jQuery('div[data-xname="Title"]').addClass('hidden-field');
+                jQuery('div[data-xname="Title"] input').val("");
+                jQuery('div[data-xname="Font2"]').addClass('hidden-field');
+                jQuery('div[data-xname="Font2size"]').addClass('hidden-field');
+                jQuery('div[data-xname="Customcolor2"]').addClass('hidden-field');
+                jQuery('div[data-xname="Name"]').addClass('hidden-field');
+                jQuery('div[data-xname="Name"] input').val("");
+                jQuery('div[data-xname="Font1"]').addClass('hidden-field');
+                jQuery('div[data-xname="Font1size"]').addClass('hidden-field');
+                jQuery('div[data-xname="Customcolor1"]').addClass('hidden-field');
+                jQuery('div[data-xname="Alignment"]').addClass('hidden-field');
+                jQuery('div[data-xname="text 1 vertical align"]').addClass('hidden-field');
+                jQuery('div[data-xname="text 2 vertical align"]').addClass('hidden-field');
+                jQuery('div[data-xname="Name Placement H"]').addClass('hidden-field');
+                jQuery('div[data-xname="Title Placement H"]').addClass('hidden-field');
+                
+                jQuery('div[data-xname="Badge Text"] input').val("");
+                jQuery('div[data-xname="Badge Text"]').addClass('hidden-field');
+                jQuery('div[data-xname="Font3"]').addClass('hidden-field');
+                jQuery('div[data-xname="Font3size"]').addClass('hidden-field');
+                jQuery('div[data-xname="Customcolor3"]').addClass('hidden-field');
+                jQuery('div[data-xname="text 3 vertical align"]').addClass('hidden-field');
+                jQuery('div[data-xname="Badge Text Placement H"]').addClass('hidden-field');
+            }else if($val=='1644'){
+                //jQuery('div[data-xname="Title"]').addClass('hidden-field');
+               // jQuery('div[data-xname="Title"] input').val("");
+               // jQuery('div[data-xname="Font2"]').addClass('hidden-field');
+               // jQuery('div[data-xname="Font2size"]').addClass('hidden-field');
+               // jQuery('div[data-xname="Customcolor2"]').addClass('hidden-field');
+                jQuery('div[data-xname="Image"]').addClass('hidden-field');
+                jQuery('div[data-xname="Logo Placement"]').addClass('hidden-field');
+                jQuery('div[data-xname="Uploaded Logo Size"]').addClass('hidden-field');
+                //jQuery('div[data-xname="text 2 vertical align"]').addClass('hidden-field');
+                
+                jQuery('div[data-xname="Badge Text"]').addClass('hidden-field');
+                jQuery('div[data-xname="Font3"]').addClass('hidden-field');
+                jQuery('div[data-xname="Font3size"]').addClass('hidden-field');
+                jQuery('div[data-xname="Customcolor3"]').addClass('hidden-field');
+                jQuery('div[data-xname="text 3 vertical align"]').addClass('hidden-field');
+                jQuery('div[data-xname="Badge Text Placement H"]').addClass('hidden-field');
+            }
+            else if($val=='1797'){
+                jQuery('div[data-xname="Image"]').addClass('hidden-field');
+                jQuery('div[data-xname="Logo Placement"]').addClass('hidden-field');
+                jQuery('div[data-xname="Uploaded Logo Size"]').addClass('hidden-field');
+            } 
+            else{
+                
+            }
+    });
+        jQuery('div[data-xname="Select Layout"] input[type="radio"]:checked').trigger("change");
+    }
+});
+
+//Pens Conditional
+jQuery(document).ready(function(){
+    if(jQuery('div.productView').hasClass('penprod')){
+    jQuery('div[data-xname="Select Layout"] input[type="radio"]').on('change',function(ev){
+        console.log(jQuery(this).val());
+            $val=jQuery(this).val();
+            jQuery('div[data-xname="Text Line 2"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Font2size"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Text"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Font1size"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Font1"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Alignment"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Color"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Image"]').removeClass('hidden-field');
+            jQuery('div[data-xname="Uploaded Logo Size"]').removeClass('hidden-field');
+                
+            if($val=='890' || $val=="909" || $val=="912"){
+                jQuery('div[data-xname="Text Line 2"]').addClass('hidden-field');
+                jQuery('div[data-xname="Font2size"]').addClass('hidden-field');
+                jQuery('div[data-xname="Text Line 2"] input').val("");
+                
+            } else if($val=='911'){
+                jQuery('div[data-xname="Text Line 2"]').addClass('hidden-field');
+                jQuery('div[data-xname="Font2size"]').addClass('hidden-field');
+                jQuery('div[data-xname="Text Line 2"] input').val("");
+                jQuery('div[data-xname="Text"]').addClass('hidden-field');
+                jQuery('div[data-xname="Text"] input').val("");
+                jQuery('div[data-xname="Font1size"]').addClass('hidden-field');
+                jQuery('div[data-xname="Font1"]').addClass('hidden-field');
+                jQuery('div[data-xname="Alignment"]').addClass('hidden-field');
+                jQuery('div[data-xname="Color"]').addClass('hidden-field');
+            } else if($val=='910'){
+                jQuery('div[data-xname="Text Line 2"]').addClass('hidden-field');
+                jQuery('div[data-xname="Text Line 2"] input').val("");
+                jQuery('div[data-xname="Font2size"]').addClass('hidden-field');
+                jQuery('div[data-xname="Image"]').addClass('hidden-field');
+                jQuery('div[data-xname="Uploaded Logo Size"]').addClass('hidden-field');
+            } else if($val=='1302'){
+                jQuery('div[data-xname="Image"]').addClass('hidden-field');
+                jQuery('div[data-xname="Uploaded Logo Size"]').addClass('hidden-field');
+            } else{
+                
+            }
+    });
+        jQuery('div[data-xname="Select Layout"] input[type="radio"]:checked').trigger("change");
+    }
+});
+
+//Stickers Sizes
+jQuery(document).ready(function(){
+    if(jQuery('div.productView').hasClass('stickerprod')){
+        
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const dd_jsonq = urlParams.get('dd_json');
+        console.log("urlaa"+dd_jsonq);
+        
+        var heights = [];
+        jQuery('div[data-xname^="Sticker Height"] select option').each(function() {
+            heights.push(jQuery(this).text());
+        });
+        heights.shift();
+        heights = heights.map(Number);
+        heights.sort((a, b) => a - b);
+        
+
+        jQuery('div[data-xname="Sticker Height"] input[type="number"]').attr("max",heights.at(-1));
+        jQuery('div[data-xname="Sticker Height"] input[type="number"]').attr("min",heights.at(0));
+        jQuery('div[data-xname="Sticker Height"] input[type="number"]').attr("step",0.001);
+        
+        jQuery('div[data-xname="Sticker Height"] label').html("Sticker Height ("+heights.at(0)+"-"+heights.at(-1)+" inch) <small>*</small>");
+        
+        if(!dd_jsonq){
+        jQuery('div[data-xname="Sticker Height"] input[type="number"]').val(heights.at(0));
+        }
+        
+        
+        
+        
+        
+        jQuery('div[data-xname="Sticker Height"] input[type="number"]').on('keyup',function(ev){
+             
+
+            $val=getSize(heights,jQuery(this).val());
+            jQuery('div[data-xname^="Sticker Height"] select option').filter(function() {
+              return jQuery(this).text() == $val;
+            }).prop('selected', true);
+            jQuery('div[data-xname^="Sticker Height"] select').trigger("change");
+           // if(!dd_jsonq){
+            
+                const input2 =  document.querySelector('div[data-xname^="Sticker Height"] select');
+                const event2 = new Event('change', { bubbles: true, cancelable: true });
+                
+                input2.dispatchEvent(event2);
+            //}   
+                
+        });
+        
+        
+        var widths = [];
+        jQuery('div[data-xname^="Sticker Width"] select option').each(function() {
+            widths.push(jQuery(this).text());
+        });
+        widths.shift();
+        widths = widths.map(Number);
+        widths.sort((a, b) => a - b);
+        
+        
+        jQuery('div[data-xname="Sticker Width"] input[type="number"]').attr("max",widths.at(-1));
+        jQuery('div[data-xname="Sticker Width"] input[type="number"]').attr("min",widths.at(0));
+        jQuery('div[data-xname="Sticker Width"] input[type="number"]').attr("step",0.001);
+        
+        jQuery('div[data-xname="Sticker Width"] label').html("Sticker Width ("+widths.at(0)+"-"+widths.at(-1)+" inch) <small>*</small>");
+        
+       if(!dd_jsonq){ 
+        jQuery('div[data-xname="Sticker Width"] input[type="number"]').val(widths.at(0));
+       }
+        
+        
+        
+        jQuery('div[data-xname="Sticker Width"] input[type="number"]').on('keyup',function(ev){
+            $val=getSize(widths,jQuery(this).val());
+            jQuery('div[data-xname^="Sticker Width"] select option').filter(function() {
+              return jQuery(this).text() == $val;
+            }).prop('selected', true);
+            jQuery('div[data-xname^="Sticker Width"] select').trigger("change");
+            
+        //if(!dd_jsonq){
+                const input =  document.querySelector('div[data-xname^="Sticker Width"] select');
+                const event = new Event('change', { bubbles: true, cancelable: true });
+        
+                input.dispatchEvent(event);
+       // }
+        });
+        
+        
+        /*function getSize(sizes,searchval){
+            bestSize = Infinity;
+            higherSizes = sizes.filter(candidate => candidate >= searchval);
+            higherSizes.forEach(candidate => {
+                if (candidate < bestSize) bestSize = candidate;    
+            });
+            if(bestSize == Infinity) bestSize= sizes.at(-1);
+            return bestSize;
+        }*/
+       
+        
+    }
+});
+
+
+
+function getSize(sizes,searchval){
+            let min = Math.max(...sizes.filter( num => num <= searchval ));
+             if(min == -Infinity) min= sizes.at(0); 
+             return min;
+        }
+        if(jQuery('div.productView').hasClass('stickerprod')){
+window.addEventListener('load',function () {
+    var widths = [];
+        jQuery('div[data-xname^="Sticker Width"] select option').each(function() {
+            widths.push(jQuery(this).text());
+        });
+        widths.shift();
+        widths = widths.map(Number);
+        widths.sort((a, b) => a - b);
+        
+        
+      var heights = [];
+        jQuery('div[data-xname^="Sticker Height"] select option').each(function() {
+            heights.push(jQuery(this).text());
+        });
+        heights.shift();
+        heights = heights.map(Number);
+        heights.sort((a, b) => a - b);   
+        
+        
+    setTimeout(() => {
+    $wh=jQuery('div[data-xname="Sticker Width"] input[type="number"]');
+    $val=getSize(widths,$wh.val());
+    jQuery('div[data-xname^="Sticker Width"] select option').filter(function() {
+              return jQuery(this).text() == $val;
+            }).prop('selected', true);
+    
+    $hh=jQuery('div[data-xname="Sticker Height"] input[type="number"]');
+    $val=getSize(heights,$hh.val());
+    jQuery('div[data-xname^="Sticker Height"] select option').filter(function() {
+          return jQuery(this).text() == $val;
+    }).prop('selected', true);
+            
+            
+    
+    
+    //jQuery('div[data-xname="Sticker Height"] input[type="number"]').trigger("keyup");
+    //jQuery('div[data-xname="Sticker Width"] input[type="number"]').trigger("keyup");
+    
+    const inpt =  document.querySelector('div[data-xname="Sticker Height"] input[type="number"]');
+    const inpt2 =  document.querySelector('div[data-xname="Sticker Width"] input[type="number"]');
+    const evnt = new Event('input', { bubbles: true });
+    inpt.dispatchEvent(evnt);
+    inpt2.dispatchEvent(evnt);
+    
+    
+    
+    const input2 =  document.querySelector('div[data-xname^="Sticker Height"] select');
+    const event2 = new Event('change', { bubbles: true, cancelable: true });
+    
+    const input =  document.querySelector('div[data-xname^="Sticker Width"] select');
+    const event = new Event('change', { bubbles: true, cancelable: true });
+    input.dispatchEvent(event);
+    input.dispatchEvent(event2);
+    
+}, 1000);
+    
+
+    
+
+    
+  //  jQuery('div[data-xname^="Sticker Width"] select').trigger("change");
+    //jQuery('div[data-xname^="Sticker Height"] select').trigger("change");
+});
+}
+
+if ( self == top ) {
+  jQuery(document).ready(function(){ 
+    if(jQuery("div[data-content-region='product_tab_shipping_content']").html().length > 0){
+        
+    }else{
+        jQuery(".tab-title[href='#tab-shipping']").hide();
+    }
+    if(jQuery("div[data-content-region='product_tab_custom_content']").html().length > 0){
+        
+    }else{
+        jQuery(".tab-title[href='#tab-custom']").hide();
+    }
+  });
+}
+</script>
+{{/partial}}
+{{> layout/base}}

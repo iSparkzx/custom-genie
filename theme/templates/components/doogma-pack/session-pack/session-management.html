@@ -1,0 +1,146 @@
+<!-- variable used to enable session storage are below -->
+
+<!-- sessionInclude: 'yes', -->
+<!-- sessionStoreModifiers: 'dp_printcolor|dp_text' -->
+
+<script>
+
+    function storeDoogmaParamsInStorage( data ) {    
+        // Check if localStorage is available; if not, use sessionStorage
+        const storage = typeof localStorage !== "undefined" ? localStorage : sessionStorage;
+        // alert(storage);
+        
+        console.log("session storage function consoles")
+        console.log(data)
+        let paramsToStore = window.DynaConfig.sessionStoreModifiers;
+        
+        if(!paramsToStore){
+            return;
+        }
+    
+        // Retrieve existing stored object or initialize a new one
+        let storedData = storage.getItem("DoogmaStorageParams");
+        storedData = storedData ? JSON.parse(storedData) : {};
+    
+        // Ensure 'data' is an object
+        if (typeof data === "object" && data !== null) {
+            console.log("1")
+            // Loop through each key-value pair in the provided object
+            for (const key in data) {
+                if (data.hasOwnProperty(key)) {
+                     console.log("2")
+                    // Skip undefined keys or values
+                    if ( ( key === undefined || data[key] === undefined ) || !paramsToStore.split("|").includes(key) || (data[key]=="") ) {
+                         console.log("3")
+                          console.log(key)
+                        // removeKeyFromDoogmaStorage(key)
+                        delete storedData[key];
+                        continue;
+                    }
+    
+                    // Update or add the key-value pair in storedData
+                    storedData[key] = data[key];
+                }
+            }
+    
+            // Save the updated object back to storage
+            console.log("added string")
+            console.log(JSON.stringify(storedData))
+            storage.setItem("DoogmaStorageParams", JSON.stringify(storedData));
+        }
+    }
+    
+    function removeKeyFromDoogmaStorage(keyToRemove) {
+        // Check if localStorage is available; if not, use sessionStorage
+        const storage = typeof localStorage !== "undefined" ? localStorage : sessionStorage;
+      let storedData = localStorage.getItem("DoogmaStorageParams");
+    
+      if (storedData) {
+        try {
+          storedData = JSON.parse(storedData);
+        } catch (e) {
+          console.error("Invalid JSON in DoogmaStorageParams", e);
+          return;
+        }
+    
+        console.log("Existing keys:", Object.keys(storedData));
+        console.log("Key to remove:", `"${keyToRemove}"`);
+    
+        if (Object.prototype.hasOwnProperty.call(storedData, keyToRemove)) {
+          storedData[keyToRemove] = "test";
+          
+          console.log("storedData after ket removed");
+          console.log(storedData)
+    
+          try {
+              console.log(JSON.stringify(storedData));
+            storage.setItem("DoogmaStorageParams", JSON.stringify(storedData));
+            console.log(`Key '${keyToRemove}' removed.`);
+          } catch (e) {
+            console.error("Failed to save updated DoogmaStorageParams", e);
+          }
+        } else {
+          console.warn(`Key '${keyToRemove}' not found.`);
+        }
+      } else {
+        console.warn("DoogmaStorageParams does not exist.");
+      }
+    }
+    
+    function showHideCanvas() {
+        const storage = typeof localStorage !== "undefined" ? localStorage : sessionStorage;
+        var storedData = storage.getItem("DoogmaStorageParams");
+        storedData = storedData ? JSON.parse(storedData) : null;
+    
+        var mainDivs = document.querySelectorAll(".card-img-container"); // <-- Use querySelectorAll for multiple
+    
+        mainDivs.forEach(function(cardContainer) {
+            var canvasdiv = cardContainer.querySelector(".doogma-session-available-wrapper .doogma-session-available");
+            var normalDiv = cardContainer.querySelector(".doogma-session-available-wrapper .doogma-session-not-available");
+    
+            if (storedData && Object.keys(storedData).length > 0) {
+                console.log("Stored data exists:", storedData);
+                if (canvasdiv) canvasdiv.style.display = "block";
+                if (normalDiv) normalDiv.style.display = "none";
+            } else {
+                console.log("Stored data is null or empty.");
+                if (canvasdiv) canvasdiv.style.display = "none";
+                if (normalDiv) normalDiv.style.display = "block";
+            }
+        });
+    }
+
+    
+    // function removeKeyFromDoogmaStorage(keyToRemove) {
+    //     // Retrieve the stored object from localStorage
+    //     let storedData = localStorage.getItem("DoogmaStorageParams");
+    
+    //     // Check if data exists
+    //     if (storedData) {
+    //         storedData = JSON.parse(storedData); // Convert JSON string to object
+    //         console.log(storedData);
+    //         console.log(keyToRemove)
+    //         console.log("All keys in DoogmaStorageParams:", Object.keys(storedData));
+    //         console.log("Key to remove:", `"${keyToRemove}"`);
+    
+    //         // Check if the key exists in the object
+    //         if (storedData.hasOwnProperty(keyToRemove)) {
+    //             delete storedData[keyToRemove]; // Remove the key from the object
+    
+    //             // Save the updated object back to localStorage
+    //             localStorage.setItem("DoogmaStorageParams", JSON.stringify(storedData));
+    //             console.log(`Key '${keyToRemove}' removed from DoogmaStorageParams.`);
+    //         } else {
+    //             console.log(`Key '${keyToRemove}' does not exist in DoogmaStorageParams.`);
+    //         }
+    //     } else {
+    //         console.log("DoogmaStorageParams does not exist in localStorage.");
+    //     }
+    // }
+    document.addEventListener( "eventForSessionManagement", function (event) {
+        // alert();
+        // console.log(event) 
+        storeDoogmaParamsInStorage( event.detail );
+        
+    });
+</script>

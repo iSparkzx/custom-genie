@@ -1,0 +1,799 @@
+---
+category:
+    shop_by_price: true
+    products:
+        limit: {{theme_settings.categorypage_products_per_page}}
+products:
+    new:
+        limit: {{theme_settings.homepage_new_products_count}}
+    featured:
+        limit: {{theme_settings.homepage_featured_products_count}}
+    top_sellers:
+        limit: {{theme_settings.homepage_top_products_count}}
+---
+{{inject "categoryProductsPerPage" theme_settings.categorypage_products_per_page}}
+{{#partial "head"}}
+    {{#if pagination.category.previous}}
+        <link rel="prev" href="{{pagination.category.previous}}">
+    {{/if}}
+    {{#if pagination.category.next}}
+        <link rel="next" href="{{pagination.category.next}}">
+    {{/if}}
+
+<script src="https://dynaviewcode.doogma.com/dist/dynaviewer1.2/dynaviewer.js"></script> <!--test script from oleksii ro fix the issue-->
+<script>
+    window.renderPLPCanvas =  function( pid, custom_fields ) {  
+        console.log("I start");
+        let customDpHeight = 3;
+        let customDpWidth = 3;
+        
+        if (!custom_fields || !Array.isArray(custom_fields)) {
+            console.log( "custom fields for product- "+pid+" Not Found" )
+            return;
+        }
+        
+        var data = {
+            pid: pid,
+            params: {}
+        }
+        
+        let dynaViewerName = ''; 
+        
+        custom_fields.forEach((f) => {
+            if (f.name === 'dd_dynaviewerid') {
+              data.name = f.value
+              dynaViewerName = f.value
+            }
+            //checks if customfield name contains "dp_" and its value doesnt contain "variant_" or "modifier_"
+            if (
+              f.name.indexOf('dp_') !== -1 &&
+              f.value.indexOf('variant_') === -1 &&
+              f.value.indexOf('modifier_') === -1
+            ) {
+              data.params[f.name] = f.value
+            }
+        });
+
+        //returning if the product is not dynaviewer Product
+        if( !dynaViewerName || dynaViewerName === '' ){
+          console.log("product is not dynaviewer Product. Product Id"+pid);
+          return;
+        }else{
+          console.log("product is dynaviewer Product. Product Id"+pid);
+        }
+        
+        
+        //if session available then updating the initial dpparams to dpParams store in seesion
+        if(typeof window.DynaConfig !== 'undefined' && window.DynaConfig.sessionInclude && window.DynaConfig.sessionInclude == 'yes' ){
+            // Retrieve stored data from localStorage
+            let storedData = localStorage.getItem("DoogmaStorageParams");
+            if (storedData) {
+                    storedData = JSON.parse(storedData); // Convert JSON string to object
+                    
+                    // Loop through storedData and update/insert into initialDPViewerParams
+                    for (const key in storedData) {
+                        if (storedData.hasOwnProperty(key)) {
+                            data.params[key] = storedData[key]; // Update or insert
+                        }
+                    }
+            }
+        }
+        
+        //code for getting the localstorage for form fields if available
+        let plpStoredData = localStorage.getItem("DoogmaPLPStorageParams");
+        if (plpStoredData) {
+                plpStoredData = JSON.parse(plpStoredData); // Convert JSON string to object
+                
+                // Loop through storedData and update/insert into initialDPViewerParams
+                for (const key in plpStoredData) {
+                    if (plpStoredData.hasOwnProperty(key)) {
+                        data.params[key] = plpStoredData[key]; // Update or insert
+                    }
+                }
+        }
+        
+        
+        // update dynamap
+        try {
+            // @ts-ignore
+            // Alpine.store('dynaViewerList').addDynaMapEntry(pid, data)
+            var category = window.location.pathname.replaceAll('/', '')
+            var param = { ...data.params }
+            param.dp_design = `${category}/${category}`
+            if (!param.dp_productoption1) {
+              param.dp_productoption1 = 'default'
+            }
+        
+            if (!param.dp_productoption2) {
+              param.dp_productoption2 = 'default'
+            }
+            
+            // custom dp_height and dp_width
+            param.dp_height = customDpHeight;
+            param.dp_width = customDpWidth;
+        
+            console.log("renderDynaviewerDesign "+dynaViewerName);
+            console.log(param)
+            console.log(`dyna_${pid}`)
+        
+            renderDynaviewerDesign(`dyna_${pid}`, dynaViewerName, param, {
+              licenseKey: window.DynaConfig.licenseKey
+            }).then((renderResult) => {
+              console.log('renderResult', renderResult)
+            }).catch((error) => {
+              console.error("Render Error:", error);
+            });
+            
+            
+    
+        } catch (error) {
+            console.error("Error occurred:", error.message);
+        }
+        
+        
+    };
+    
+    
+    // for update to work in pagination we have to store the exta fields on top in PL page value to localStorage and update the params in renderdynaviewCanvas too..
+    function paramUpdateDispatcher(dpName, dpValue) {
+        const evt = new CustomEvent('DYNA_PARAM_UPDATE', {
+          detail: {
+            dpName: dpName,
+            dpValue: dpValue
+          }
+        })
+    
+        document.dispatchEvent(evt)
+    }
+    
+    //adding the eventlistener for updating the Dynaviewer if custom update options are added
+        document.addEventListener('DYNA_PARAM_UPDATE', (event) => {
+            // @ts-ignore
+            console.log('DYNA_PARAM_UPDATE', event.detail)
+            // @ts-ignore
+            // if (!event.detail.dpName || !event.detail.dpValue) {
+            //   return
+            // }
+            // @ts-ignore
+            const payload = { [event.detail.dpName]: event.detail.dpValue }
+            
+            //storing the new value in session
+            storeDoogmaParamsInStorage(payload);
+            
+            const canvasElements = document.querySelectorAll("canvas");
+            // Loop through each canvas and call the function with its ID
+            canvasElements.forEach(canvas => {
+                updateDynaviewerCanvas(canvas.id, payload)
+            });
+        })
+    //END
+    
+    
+    
+    document.addEventListener('DOMContentLoaded', function () {
+
+        //Start to detect pagination
+        const targetNode = document.querySelector('#product-listing-container');
+
+        if (targetNode) {
+          const observer = new MutationObserver((mutationsList) => {
+              for (const mutation of mutationsList) {
+                  if (mutation.type === 'childList' || mutation.type === 'subtree') {
+                      console.log('🔄 product-listing-container has changed!');
+                      // You can trigger your custom logic here
+                      showHideCanvas();
+                  }
+              }
+          });
+
+          observer.observe(targetNode, {
+              childList: true,    // watch for added/removed children
+              subtree: true,      // watch inside descendants too
+              attributes: false   // set to true if you want to detect attribute changes
+          });
+        } else {
+          console.warn('⚠️ #product-listing-container not found.');
+        }
+        //END to detect pagination
+        
+        setuploadFields();
+        setInputFields();
+
+        showHideCanvas();
+      
+        //custom fields on category page
+    
+            //input fields handelling
+            var inputFields = document.querySelectorAll('.doogma-cp-categ-text');
+        
+            inputFields.forEach(function (input) {
+              input.addEventListener('input', function () {
+                const param = input.getAttribute('param');
+                const value = input.value;
+                
+                paramUpdateDispatcher( param, value );
+                showHideCanvas();
+            
+              });
+            });
+            
+            
+            //upload fields handelling
+            var uploadFields = document.querySelectorAll('.doogma-cp-categ-file');
+            uploadFields.forEach(function (upload) {
+              upload.addEventListener('change', function ( e ) {
+                  
+                let param = upload.getAttribute('param');
+            
+                console.log('uploaderChange', e.target.files)
+                const file = e.target.files[0];
+                if (!file) {
+                  return
+                }
+                const formData = new FormData();
+    
+                // filenameSpan.innerText = file.name
+                formData.append('file', file)
+
+                const parentDiv = e.target.closest('.doogma-cp-categ-uploadfield-wrapper');
+                // clear warning
+                let warningEl = parentDiv.querySelector('.dyna-uploader-warning');
+                if (warningEl) {
+                  warningEl.remove()
+                }
+    
+                fetch(`https://imageloader.doogma.com/image/upload?clientId=${window.DynaConfig.clientId}&randomize`, {
+                  method: 'POST',
+                  body: formData
+                })
+                .then((res) => res.json())
+                .then((res) => {
+                    
+                    if (res.origImageMetadata && !res.processedImages) {
+                      paramUpdateDispatcher( param, res.origImageUrl );
+                    }else if(res.origImageMetadata && res.processedImages){
+                      paramUpdateDispatcher( param, res.processedImages[0].rasterImageUrl );
+                    }else if( res.origImageUrl && res.rasterImageUrl){
+                      paramUpdateDispatcher( param, res.rasterImageUrl );  
+                    }
+                    
+                    setuploadFields();
+                    showHideCanvas();
+
+                    // resultField.value = res.origImageUrl
+
+                    // el.dispatchEvent(new Event('input', { bubbles: true }));
+
+                    if (res.origImageMetadata) {
+                        const resolutionThreshold = window.DynaConfig.resolutionThreshold ? window.DynaConfig.resolutionThreshold : 500;
+                        if (res.origImageMetadata.widthPx < resolutionThreshold || res.origImageMetadata.heightPx < resolutionThreshold) {
+                          
+                          warning = document.createElement('div')
+                          warning.classList.add('dyna-uploader-warning')
+                          warning.style = 'color: red; display: block; font-size: 12px'
+
+                          if (typeof window.DynaConfig.uploadWarning !== 'undefined') {
+                            warning.innerText = window.DynaConfig.uploadWarning(res.origImageMetadata, resolutionThreshold)
+                          } else {
+                            warning.innerText = '⚠️ Your image is ' + res.origImageMetadata.widthPx + '×' + res.origImageMetadata.heightPx + ' pixels. To ensure print quality, upload an SVG or a PNG that’s at least ' + resolutionThreshold + ' pixels in both width and height.'
+                          }
+
+                          parentDiv.appendChild(warning)
+                        }
+                    }
+                 
+                })
+                .catch((err) => {
+                    console.error(err)
+                })
+            
+              });
+            });
+            
+        //custom fields on category page
+        // delete buttons
+        Array.from(document.querySelectorAll('.dyna-uploader-delete')).forEach((el) => {
+            el.addEventListener('click', (e) => {
+              const target = el.dataset.target
+              const targetEl = document.getElementById(target)
+              if (targetEl) {
+                const param = targetEl.getAttribute('param')
+                const parentElement = targetEl.closest('.doogma-cp-categ-uploadfield-wrapper')
+                paramUpdateDispatcher(param, '')
+                parentElement.querySelector( ".dyna-uploader-fname" ).textContent  = "Upload Your Image"
+                parentElement.querySelector( ".dyna-categ-uploader-label" ).classList.remove("hasFile");
+                parentElement.querySelector( ".dyna-categ-uploader-label" ).classList.add("noFile");
+
+                showHideCanvas();
+              }
+            })
+        })
+      
+    });
+    
+    function setuploadFields(){
+        
+        let uploadFields = document.querySelectorAll('.doogma-cp-categ-file');
+        uploadFields.forEach(function (upload) {
+            let param = upload.getAttribute('param');
+            let uploadFieldExistsInSession = false;
+             let uploadFieldSessionValue;
+            let storedData = false;
+            
+            //if session available then updating the initial dpparams to dpParams store in seesion
+            if(window.DynaConfig && window.DynaConfig.sessionInclude && window.DynaConfig.sessionInclude == 'yes' ){
+                // Retrieve stored data from localStorage
+                storedData = localStorage.getItem("DoogmaStorageParams");
+                if (storedData) {
+                    storedData = JSON.parse(storedData); // Convert JSON string to object
+                    
+                    if (storedData.hasOwnProperty(param)) {
+                        uploadFieldExistsInSession = true;
+                        uploadFieldSessionValue = storedData[param]
+                    }
+                }
+            }
+            
+            if(uploadFieldExistsInSession){
+                upload.parentElement.querySelector( ".dyna-uploader-fname" ).textContent  = "Replace Your image"
+                upload.parentElement.querySelector( ".dyna-categ-uploader-label" ).classList.add("hasFile");
+                upload.parentElement.querySelector( ".dyna-categ-uploader-label" ).classList.remove("noFile");
+            }else{
+                upload.parentElement.querySelector( ".dyna-uploader-fname" ).textContent  = "Upload Your Image"
+                upload.parentElement.querySelector( ".dyna-categ-uploader-label" ).classList.remove("hasFile");
+                upload.parentElement.querySelector( ".dyna-categ-uploader-label" ).classList.add("noFile");
+            }
+            
+        })
+    }
+    
+    function setInputFields(){
+        var inputFields = document.querySelectorAll('.doogma-cp-categ-text');
+        
+        inputFields.forEach(function (input) {
+            const param = input.getAttribute('param');
+            
+            //if session available then updating the initial dpparams to dpParams store in seesion
+            if(window.DynaConfig && window.DynaConfig.sessionInclude && window.DynaConfig.sessionInclude == 'yes' ){
+                // Retrieve stored data from localStorage
+                storedData = localStorage.getItem("DoogmaStorageParams");
+                if (storedData) {
+                    storedData = JSON.parse(storedData); // Convert JSON string to object
+                    
+                    if (storedData.hasOwnProperty(param)) {
+                        input.value = storedData[param];
+                    }
+                }
+            }
+        
+          });
+    }
+            
+</script>
+    
+<style>
+    #dynaviewer-wrapper {
+  width: 500px;
+  height: 500px;
+  position: relative;
+}
+
+.dynaviewer-wrapper {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+}
+
+/* Ensure the canvas fills the wrapper */
+.dynaviewer-wrapper > canvas[style],
+#dynaviewer-canvas {
+  width: 100%!important;
+  height: 100%!important;
+}
+.progress-container {
+  width: 100%;
+  background-color: #f3f3f3;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 20px;
+}
+.progress-bar {
+  height: 20px;
+  width: 0;
+  background-color: #4caf50;
+  transition: width 0.2s;
+}
+.card-img-container::after {
+  padding-bottom: 100%;
+}
+.dyna-uploader-label {
+  width: 100%;
+  display: inline-flex;
+  // margin: 5px;
+  cursor: pointer;
+  border-bottom: 1px solid #8f8f8f;
+  padding: .5625rem .75rem;
+
+  &.hasFile {
+    border-bottom: 1px solid #FE3434;
+
+    .dyna-uploader-fname {
+        color: #FE3434;
+      } 
+
+    .icon-noFile {
+      display: none;
+    }
+
+    .icon-hasFile {
+      display: inherit!important;
+    }
+  }
+
+  &.noFile {
+    .icon-noFile {
+      display: inherit!important;
+    }
+
+    .icon-hasFile {
+      display: none;
+    }
+  }
+
+  &:hover path {
+    fill: #FE3434;
+  }
+
+  &:hover {
+    border-bottom: 1px solid #FE3434;
+  }
+
+  &:hover .dyna-uploader-fname {
+    color: #FE3434;
+  } 
+}
+.dyna-uploader-preview {
+  display: block;
+  max-width: 50px;
+  position: relative;
+  width: auto;
+  height: 2rem;
+  // top: -0.5625rem; 
+}
+
+.dyna-uploader-fname {
+  display: block;
+  margin-left: 5px;
+  align-self: center;
+  width: calc(100% - 40px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plp-text {
+  height: 44px;
+  margin:0;
+  margin-left: 12px;
+  padding: 5px;
+  display: flex;
+  justify-items: center;
+}
+.plp-text > label {
+  display: flex;
+  align-items: center;
+  padding-right: 5px;
+}
+
+// unrelated to dynaviewer
+#nl_email {
+  font-size: 14px;
+}
+.header-logo {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+
+// START dynaviewr category listing page
+.page.dynaviewer-category-listing ul.productGrid li{
+    width:100%;
+}
+.page.dynaviewer-category-listing ul.productGrid li figure.card-figure,
+.page.dynaviewer-category-listing ul.productGrid li .card-body,{
+    text-align: center;
+}
+
+@media (min-width: 801px) {
+  .page.dynaviewer-category-listing ul.productGrid li {
+    width: 50%;
+  }
+}
+
+// END dynaviewr category listing page
+/*--------------upload button style 30-may-2025----------------------*/
+
+.doogma-categ-fields {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #fff0;
+}
+.doogma-categ-fields {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 60px;
+}
+
+.doogma-categ-fields .doogma-cp-categ-text {
+  font-size: 13px;
+  height: 2.28571rem;
+  line-height: 1rem;
+  padding: .57143rem .78571rem;
+  width: 50%;
+  margin-right: 20px;
+  font-family: Montserrat,Arial,Helvetica,sans-serif;
+}
+.doogma-categ-fields .doogma-cp-categ-uploadfield-wrapper {
+  width: 50%;
+  margin-right: 20px;
+}
+.doogma-categ-fields .dyna-categ-uploader-label {
+  width: 100%;
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  cursor: pointer;
+  border-bottom: 1px solid #8f8f8f;
+  padding: .5625rem .75rem;
+  font-family: Montserrat,Arial,Helvetica,sans-serif;
+  font-size: 13px;
+}
+.doogma-categ-fields .dyna-categ-uploader-label:hover {
+  border-bottom: 1px solid #fe3434;
+}
+.doogma-categ-fields .dyna-categ-uploader-label:hover .dyna-uploader-fname {
+  color: #fe3434;
+}
+.doogma-categ-fields .dyna-categ-uploader-label:hover path {
+  fill: #FE3434;
+}
+.doogma-categ-fields .dyna-categ-uploader-label.noFile .dyna-uploader-preview .icon-hasFile {
+  display: none;
+}
+.doogma-categ-fields .dyna-categ-uploader-label.hasFile .dyna-uploader-preview .icon-noFile {
+  display: none;
+}
+.dynaviewer-category-listing .doogma-categ-fields {
+  justify-content: space-between;
+  padding-left: .75rem;
+  padding-right: .75rem; 
+  margin-bottom: 20px;
+}
+.doogma-categ-fields .doogma-wrapper {
+  width: 33.33%;
+}
+.doogma-categ-fields .dyna-categ-uploader-label {
+  display: flex;
+  cursor: pointer;
+  border-bottom: 1px solid #8f8f8f;
+  padding: .5625rem .75rem;
+}
+.doogma-categ-fields .dyna-categ-uploader-label:hover {
+  border-bottom: 1px solid #fe3434;
+}
+.doogma-categ-fields .doogma-cp-categ-uploadfield-wrapper:hover {
+  color: #fe3434;
+}
+.doogma-categ-fields .dyna-categ-uploader-label.noFile .icon-hasFile {
+  display: none;
+}
+.doogma-categ-fields .dyna-categ-uploader-label.hasFile .icon-noFile {
+  display: none;
+}
+.doogma-categ-fields .dyna-categ-uploader-label:hover svg.icon-noFile {
+  filter: invert(34%) sepia(100%) saturate(1346%) hue-rotate(330deg) brightness(101%) contrast(100%);
+}
+.doogma-categ-fields .doogma-cp-categ-text {
+  color: #333;
+  height: 2.14286rem;
+  background-color: #fff;
+  border: 1px solid #8f8f8f;
+  border-radius: 4px;
+}
+@media (max-width: 767px) {
+    
+.doogma-categ-fields {
+ flex-direction: column;
+}
+
+.doogma-categ-fields .doogma-cp-categ-text {
+  width: 100%;
+}
+.doogma-categ-fields .doogma-cp-categ-uploadfield-wrapper {
+  width: 100%;
+  margin: 25px 0px;
+}
+.doogma-categ-fields {
+  flex-direction: column;
+  width: 100%;
+}
+.doogma-categ-fields .doogma-cp-categ-text {
+  width: 100%;
+  margin-bottom: 15px;
+}
+.doogma-categ-fields .doogma-cp-categ-uploadfield-wrapper {
+  width: 100%;
+  margin-bottom: 15px;
+}
+}
+/*--------------end upload button style 30-may-2025----------------------*/
+
+.dyna-uploader-delete {
+  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  top: 7px;
+}
+.dyna-categ-uploader-label {
+ display: inline-flex!important;
+  width: calc(100% - 70px)!important;
+}
+</style>
+{{/partial}}
+
+{{#partial "page"}}
+    <div class="container container-1600">
+        <div class="page-header--banner pos-relative o-h" data-halo-load="animation">
+            <div class="breadcrumb-wrapper">
+                {{> components/common/breadcrumbs breadcrumbs=breadcrumbs}}
+            </div>
+            <div class="page-header--wrapper d-flex c-gap-30 halo-fadeZoom cg-banner">
+                <div class="category-image pos-relative w-100 h-100 nodesk">
+                    {{#if category.image}}
+                        {{> components/common/responsive-img
+                            image=category.image
+                            fallback_size=theme_settings.zoom_size
+                            lazyload=theme_settings.lazyload_mode
+                            class="category-header-image b-r-20 w-100"
+                        }}
+                    {{else}}
+                        <img class="w-100 b-r-20 bg-opacity-4" src="{{cdn 'img/placeholder-electronic.svg'}}" alt="{{title}}">
+                    {{/if}}
+                </div>
+                
+                    <div class="category-sub b-r-30  d-none-tb">
+                         <h1 class="page-heading color-custom-white left">{{category.name}}</h1>
+                         <div class="banner_d_text">
+                             Upload your image and let Design Echo brand the products below automatically.
+                         </div>
+                         
+                         <div class="doogma-categ-fields">
+                        <div class="doogma-cp-categ-uploadfield-wrapper">
+                            <input type="file"  class="doogma-cp-categ-file" id="doogma-file-upload_1070" param="dp_uploadedlogo" style="display:none;" />
+                            <label class="dyna-categ-uploader-label" for="doogma-file-upload_1070" >  <!-- this div will have "noFile" or "hasFile" class -->
+                                <span class="dyna-uploader-fname">upload Your Image</span> <!-- "Replace Your image"  -->
+                                <span class="dyna-uploader-preview">
+                                   <svg width="34" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 42.47 34.25" class="icon-noFile" height="34"  fill="none" xmlns="http://www.w3.org/2000/svg">     
+            					  <g id="Selections">
+            						<g id="Cloud_upload" data-name="Cloud upload">
+            						  <g>
+            							<g>
+            							  <path class="cls-2" d="M31.83,8.94c-.23,0-.46,0-.7.02-1.29-4.67-5.56-7.97-10.48-7.97-5.84,0-10.63,4.63-10.86,10.42-.13,0-.26,0-.39,0-4.63,0-8.4,3.77-8.4,8.4s3.77,8.4,8.4,8.4h3.44c.55,0,.99-.44.99-.99s-.44-.99-.99-.99h-3.44c-3.54,0-6.42-2.88-6.42-6.42s2.88-6.42,6.42-6.42c.41,0,.81.04,1.21.11.3.06.61-.03.84-.23.23-.2.35-.5.33-.81-.01-.19-.02-.38-.02-.59,0-4.91,3.99-8.9,8.9-8.9,4.29,0,7.96,3.05,8.75,7.26.1.53.61.89,1.14.79.42-.07.85-.11,1.29-.11,4.22,0,7.66,3.44,7.66,7.66s-3.44,7.66-7.66,7.66h-2.21c-.55,0-.99.44-.99.99s.44.99.99.99h2.21c5.31,0,9.64-4.32,9.64-9.64s-4.32-9.64-9.64-9.64Z"/>
+            							  <path class="cls-3" d="M31.83,8.94c-.23,0-.46,0-.7.02-1.29-4.67-5.56-7.97-10.48-7.97-5.84,0-10.63,4.63-10.86,10.42-.13,0-.26,0-.39,0-4.63,0-8.4,3.77-8.4,8.4s3.77,8.4,8.4,8.4h3.44c.55,0,.99-.44.99-.99s-.44-.99-.99-.99h-3.44c-3.54,0-6.42-2.88-6.42-6.42s2.88-6.42,6.42-6.42c.41,0,.81.04,1.21.11.3.06.61-.03.84-.23.23-.2.35-.5.33-.81-.01-.19-.02-.38-.02-.59,0-4.91,3.99-8.9,8.9-8.9,4.29,0,7.96,3.05,8.75,7.26.1.53.61.89,1.14.79.42-.07.85-.11,1.29-.11,4.22,0,7.66,3.44,7.66,7.66s-3.44,7.66-7.66,7.66h-2.21c-.55,0-.99.44-.99.99s.44.99.99.99h2.21c5.31,0,9.64-4.32,9.64-9.64s-4.32-9.64-9.64-9.64Z"/>
+            							</g>
+            							<path class="cls-1" d="M21.96,17.55s0,0-.01-.01c0,0-.02-.02-.03-.03,0,0,0,0-.01-.01,0,0,0,0-.01-.01,0,0-.02-.01-.02-.02,0,0-.02-.01-.03-.02,0,0-.02-.01-.03-.02,0,0-.02-.01-.02-.02,0,0-.02-.01-.03-.02-.01,0-.02-.01-.03-.02,0,0-.02,0-.02-.01,0,0-.02-.01-.03-.02-.01,0-.02-.01-.03-.02,0,0-.02,0-.02-.01-.01,0-.02,0-.03-.01-.01,0-.02,0-.03-.01,0,0-.01,0-.02,0-.01,0-.02,0-.03,0-.01,0-.02,0-.03,0,0,0-.02,0-.02,0-.01,0-.02,0-.04,0-.01,0-.02,0-.03,0,0,0-.02,0-.03,0-.01,0-.02,0-.03,0-.01,0-.02,0-.03,0-.01,0-.02,0-.03,0,0,0-.01,0-.02,0,0,0-.01,0-.02,0,0,0-.02,0-.03,0-.01,0-.02,0-.04,0-.01,0-.02,0-.03,0,0,0-.02,0-.02,0-.01,0-.03,0-.04,0-.01,0-.02,0-.03,0,0,0-.01,0-.02,0-.01,0-.03,0-.04.01-.01,0-.02,0-.03,0,0,0-.01,0-.02,0-.01,0-.02,0-.04.01-.01,0-.02,0-.03.01,0,0-.01,0-.02,0-.01,0-.02.01-.04.02,0,0-.02,0-.03.01,0,0-.02,0-.02.01-.01,0-.02.01-.03.02,0,0-.02.01-.03.02,0,0-.02.01-.02.02,0,0-.02.01-.03.02,0,0-.02.01-.03.02,0,0-.02.01-.02.02,0,0,0,0-.01,0,0,0,0,0-.01.01,0,0-.02.02-.03.03,0,0,0,0-.01.01l-4.18,4.48c-.37.4-.35,1.02.05,1.4.19.18.43.27.67.27.26,0,.53-.11.72-.31l2.47-2.65v11.53c0,.55.44.99.99.99s.99-.44.99-.99v-11.53l2.47,2.65c.19.21.46.31.72.31.24,0,.48-.09.67-.27.4-.37.42-1,.05-1.4l-4.18-4.48Z"/>
+            						  </g>
+            						</g>
+            					  </g>
+            					</svg>
+                                    <svg viewBox="0 0 36.7 37.63" width="31"  class="icon-hasFile"  fill="none" xmlns="http://www.w3.org/2000/svg">
+            						    <defs>
+                                        <style>
+                                          .cls-12 {
+                                            fill: none;
+                                            stroke: #fff;
+                                            stroke-linecap: round;
+                                            stroke-linejoin: round;
+                                            stroke-width: 4px;
+                                          }
+                                        </style>
+                                        </defs>
+            						  <g id="Selections">
+            							<g>
+            							  <g>
+            								<path class="cls-12" d="M2,20.45v-8.93c0-2.29,1.86-4.15,4.15-4.15h28.55l-8.06-5.37"/>
+            								<line class="cls-12" x1="34.7" y1="7.37" x2="26.64" y2="12.86"/>
+            							  </g>
+            							  <g>
+            								<path class="cls-12" d="M34.7,17.18v8.93c0,2.29-1.86,4.15-4.15,4.15H2s8.06,5.37,8.06,5.37"/>
+            								<line class="cls-12" x1="2" y1="30.26" x2="10.06" y2="24.77"/>
+            							  </g>
+            							</g>
+            						  </g>
+            						</svg>
+                                </span>
+                            </label>
+                            <span class="dyna-uploader-delete" data-target="doogma-file-upload_1070">
+                                                <svg width="22" height="25" viewBox="0 0 22 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M21.2143 3.90625H17.1688L15.4992 1.13525C15.0317 0.431006 14.3098 0 13.4848 0H8.51518C7.69018 0 6.92411 0.431006 6.50179 1.13525L4.83116 3.90625H0.785714C0.349888 3.90625 0 4.25439 0 4.6875V5.46875C0 5.90332 0.349888 6.25 0.785714 6.25H1.57143V21.875C1.57143 23.6011 2.97835 25 4.71429 25H17.2857C19.0217 25 20.4286 23.6011 20.4286 21.875V6.25H21.2143C21.6513 6.25 22 5.90332 22 5.46875V4.6875C22 4.25439 21.6513 3.90625 21.2143 3.90625ZM8.44152 2.48438C8.49062 2.39893 8.58884 2.34375 8.69196 2.34375H13.308C13.4124 2.34375 13.5106 2.39868 13.5597 2.48413L14.4179 3.90625H7.58214L8.44152 2.48438ZM17.2857 22.6562H4.71429C4.28033 22.6562 3.92857 22.3065 3.92857 21.875V6.25H18.0714V21.875C18.0714 22.3047 17.7179 22.6562 17.2857 22.6562ZM11 20.3125C11.4343 20.3125 11.7857 19.9631 11.7857 19.5312V9.375C11.7857 8.94316 11.4343 8.59375 11 8.59375C10.5657 8.59375 10.2143 8.94531 10.2143 9.375V19.5312C10.2143 19.9609 10.5679 20.3125 11 20.3125ZM7.07143 20.3125C7.50357 20.3125 7.85714 19.9609 7.85714 19.5312V9.375C7.85714 8.94316 7.50573 8.59375 7.07143 8.59375C6.63713 8.59375 6.28571 8.94531 6.28571 9.375V19.5312C6.28571 19.9609 6.63929 20.3125 7.07143 20.3125ZM14.9286 20.3125C15.3629 20.3125 15.7143 19.9631 15.7143 19.5312V9.375C15.7143 8.94316 15.3629 8.59375 14.9286 8.59375C14.4943 8.59375 14.1429 8.94531 14.1429 9.375V19.5312C14.1429 19.9609 14.4964 20.3125 14.9286 20.3125Z" fill="#21C8E1"/>
+                                                </svg>
+                                              </span>
+                        </div>
+                        <!--<input type="file"  class="doogma-cp-categ-file" param="dp_uploadedlogo" />-->
+                    </div>
+                    <!-- end of doogma fields -->
+        
+                    </div>
+                
+                <div class="category-image pos-relative w-100 h-100 nomobile">
+                    {{#if category.image}}
+                        {{> components/common/responsive-img
+                            image=category.image
+                            fallback_size=theme_settings.zoom_size
+                            lazyload=theme_settings.lazyload_mode
+                            class="category-header-image b-r-20 w-100"
+                        }}
+                    {{else}}
+                        <img class="w-100 b-r-20 bg-opacity-4" src="{{cdn 'img/placeholder-electronic.svg'}}" alt="{{title}}">
+                    {{/if}}
+                    <div class="content-wrapper">
+                        <div class="wrp_align">        
+                             {{{category.description}}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{{region name="category_below_header"}}}
+
+        <div class="page halo-page">
+            {{#if category.faceted_search_enabled}}
+                <div class="page-sidebar-mobile-wrapper">
+                    <div class="page-sidebar-mobile b-r-24">
+                        <span class="text d-inline-block v-a-middle">{{lang 'common.sidebar_button'}}</span>
+                        <svg class="icon d-inline-block v-a-middle" aria-hidden="true"><use href="#icon-chevron-down" /></svg>
+                    </div>
+                </div>
+                <aside class="page-sidebar" id="faceted-search-container">
+                    {{> components/category/sidebar}}
+                </aside>
+            {{else if category.subcategories}}
+                <div class="page-sidebar-mobile-wrapper">
+                    <div class="page-sidebar-mobile">
+                        <span class="text">{{lang 'common.sidebar_button'}}</span>
+                    </div>
+                </div>
+                <aside class="page-sidebar" id="faceted-search-container">
+                    {{> components/category/sidebar}}
+                </aside>
+            {{else if category.shop_by_price}}
+                {{#if theme_settings.shop_by_price_visibility}}
+                    <div class="page-sidebar-mobile-wrapper">
+                        <div class="page-sidebar-mobile">
+                            <span class="text">{{lang 'common.sidebar_button'}}</span>
+                        </div>
+                    </div>
+                    <aside class="page-sidebar" id="faceted-search-container">
+                        {{> components/category/sidebar}}
+                    </aside>
+                {{/if}}
+            {{/if}}
+
+            <main class="page-content doogma-plp" id="product-listing-container">
+                {{> components/doogma-pack/doogma-pack-product-listing/doogma-product-listing}}
+            </main>
+
+            <div class="page-region page-content">
+                {{{region name="category_below_content"}}}
+            </div>
+        </div>
+    </div>
+{{> components/doogma-pack/session-pack/session-management}}
+{{/partial}}
+{{> layout/base}}

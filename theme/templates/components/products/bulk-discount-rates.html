@@ -1,0 +1,72 @@
+{{#if bulk_discount_rates.length}}
+    {{#if product}}<dt class="productView-info-name">{{lang 'products.bulk_pricing.title'}}</dt>{{/if}}
+    <!--<dd class="productView-info-value">
+        <a href="{{product.url}}#bulk_pricing"
+           {{#unless is_ajax }}data-reveal-id="modal-bulk-pricing"{{/unless}}>
+            {{lang 'products.bulk_pricing.view'}}
+        </a>
+    </dd>-->
+<div id="modal-bulk-pricing" data-reveal >
+        <!--<div class="modal-header">
+            <h2 class="modal-header-title">{{lang 'products.bulk_pricing.modal_title'}}</h2>
+            {{> components/common/modal/modal-close-btn}}
+        </div>-->
+        <div class="tbl_bulk">
+            <div >
+                                        
+                                        <table class="table tablebulk" border="0" border-collapse="collapse">
+                                            <tbody class="table-body">
+                                                
+                                            
+                                            <tr>
+                                                <td>Quantity</td>
+                                                {{#each bulk_discount_rates}}
+                                                    <td class="bulk_value">
+                                                        {{min}}+
+                                                    </td>
+                                                 {{/each}}
+                                            </tr>
+                                            
+                                            <tr>
+                                                <td>Unit price</td>
+                                                {{#each bulk_discount_rates}}
+                                                    <td class="bulk_price">
+                                                        {{#if type '===' 'percent'}}
+                                                            {{../settings.money.currency_token}}{{toFixed (subtract ../price.without_tax.value (multiply ../price.without_tax.value (divide discount.value 100))) 2}}
+                                                        {{/if}}
+                                                        {{#if type '===' 'fixed'}}
+                                                            {{lang 'products.bulk_pricing.fixed' discount=discount.formatted}}
+                                                        {{/if}}
+                                                        {{#if type '===' 'price'}}
+                                                           <!-- {{lang 'products.bulk_pricing.price' discount=discount.formatted}}-->
+                                                           {{../settings.money.currency_token}}{{toFixed (subtract ../price.without_tax.value  discount.value) 2}} 
+                                                        {{/if}}
+                                                        
+                                                    </td>
+                                                 {{/each}}
+                                                 
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <p class="bulk_instructions">{{lang 'products.bulk_pricing.instructions'}}</p>
+                                        
+                                    </div>
+        </div>
+    </div>
+    {{#if bulk_discount_rates.length}}
+        <table class="qty_bulk" style="margin-bottom:20px">
+        {{#each bulk_discount_rates}}
+        <tr>
+            <td width="50px"><label><input value="{{min}}" type="radio" name="bulkqty"> {{min}}</label></td>
+			<td width="100px" class=" blk_price">{{../settings.money.currency_token}}{{toFixed (subtract ../price.without_tax.value (multiply ../price.without_tax.value (divide discount.value 100))) 2}} ea</td>
+			
+            <td width="100px" class="blk_dc">Save {{discount.formatted}}</td>
+			<td width="100px" class="blk_ea">
+				{{../settings.money.currency_token}}{{toFixed (multiply (toFixed (subtract ../price.without_tax.value (multiply ../price.without_tax.value (divide discount.value 100))) 2) min) 2}}
+			</td>
+        </tr>
+        {{/each}}
+        </table>
+        {{/if}}
+		
+{{/if}}

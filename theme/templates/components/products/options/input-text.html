@@ -1,0 +1,421 @@
+<div class="form-field" data-product-attribute="input-text" data-xname="{{this.display_name}}">
+	{{#contains this.prefill '"type":"file"'}}
+	<input 
+        class="form-input form-input--small doogma-file-field" 
+        type="hidden" 
+        id="attribute_text_{{id}}"
+        name="attribute[{{this.id}}]" 
+        {{#if required}}required{{/if}} {{#if max_length}}maxlength="{{max_length}}"{{/if}}1
+        >
+        <input
+            class="form-file"
+            type="file"
+            id="dyna_uploader_{{id}}"
+            style="display:none"
+            data-dyna-uploader="{{id}}"
+        >
+        <label for="dyna_uploader_{{id}}" class="form-label form-label--alternate form-label--inlineSmall dyna-uploader-container">
+            
+            <div class="dyna-uploader-label">
+                <span class="dyna-uploader-fname" data-label="{{this.display_name}}"> <!-- text to be filled by the script --></span>
+                <span class="dyna-uploader-preview">
+                        
+						<svg width="34" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 42.47 34.25" class="icon-noFile" height="34"  fill="none" xmlns="http://www.w3.org/2000/svg">     
+					  <g id="Selections">
+						<g id="Cloud_upload" data-name="Cloud upload">
+						  <g>
+							<g>
+							  <path class="cls-2" d="M31.83,8.94c-.23,0-.46,0-.7.02-1.29-4.67-5.56-7.97-10.48-7.97-5.84,0-10.63,4.63-10.86,10.42-.13,0-.26,0-.39,0-4.63,0-8.4,3.77-8.4,8.4s3.77,8.4,8.4,8.4h3.44c.55,0,.99-.44.99-.99s-.44-.99-.99-.99h-3.44c-3.54,0-6.42-2.88-6.42-6.42s2.88-6.42,6.42-6.42c.41,0,.81.04,1.21.11.3.06.61-.03.84-.23.23-.2.35-.5.33-.81-.01-.19-.02-.38-.02-.59,0-4.91,3.99-8.9,8.9-8.9,4.29,0,7.96,3.05,8.75,7.26.1.53.61.89,1.14.79.42-.07.85-.11,1.29-.11,4.22,0,7.66,3.44,7.66,7.66s-3.44,7.66-7.66,7.66h-2.21c-.55,0-.99.44-.99.99s.44.99.99.99h2.21c5.31,0,9.64-4.32,9.64-9.64s-4.32-9.64-9.64-9.64Z"/>
+							  <path class="cls-3" d="M31.83,8.94c-.23,0-.46,0-.7.02-1.29-4.67-5.56-7.97-10.48-7.97-5.84,0-10.63,4.63-10.86,10.42-.13,0-.26,0-.39,0-4.63,0-8.4,3.77-8.4,8.4s3.77,8.4,8.4,8.4h3.44c.55,0,.99-.44.99-.99s-.44-.99-.99-.99h-3.44c-3.54,0-6.42-2.88-6.42-6.42s2.88-6.42,6.42-6.42c.41,0,.81.04,1.21.11.3.06.61-.03.84-.23.23-.2.35-.5.33-.81-.01-.19-.02-.38-.02-.59,0-4.91,3.99-8.9,8.9-8.9,4.29,0,7.96,3.05,8.75,7.26.1.53.61.89,1.14.79.42-.07.85-.11,1.29-.11,4.22,0,7.66,3.44,7.66,7.66s-3.44,7.66-7.66,7.66h-2.21c-.55,0-.99.44-.99.99s.44.99.99.99h2.21c5.31,0,9.64-4.32,9.64-9.64s-4.32-9.64-9.64-9.64Z"/>
+							</g>
+							<path class="cls-1" d="M21.96,17.55s0,0-.01-.01c0,0-.02-.02-.03-.03,0,0,0,0-.01-.01,0,0,0,0-.01-.01,0,0-.02-.01-.02-.02,0,0-.02-.01-.03-.02,0,0-.02-.01-.03-.02,0,0-.02-.01-.02-.02,0,0-.02-.01-.03-.02-.01,0-.02-.01-.03-.02,0,0-.02,0-.02-.01,0,0-.02-.01-.03-.02-.01,0-.02-.01-.03-.02,0,0-.02,0-.02-.01-.01,0-.02,0-.03-.01-.01,0-.02,0-.03-.01,0,0-.01,0-.02,0-.01,0-.02,0-.03,0-.01,0-.02,0-.03,0,0,0-.02,0-.02,0-.01,0-.02,0-.04,0-.01,0-.02,0-.03,0,0,0-.02,0-.03,0-.01,0-.02,0-.03,0-.01,0-.02,0-.03,0-.01,0-.02,0-.03,0,0,0-.01,0-.02,0,0,0-.01,0-.02,0,0,0-.02,0-.03,0-.01,0-.02,0-.04,0-.01,0-.02,0-.03,0,0,0-.02,0-.02,0-.01,0-.03,0-.04,0-.01,0-.02,0-.03,0,0,0-.01,0-.02,0-.01,0-.03,0-.04.01-.01,0-.02,0-.03,0,0,0-.01,0-.02,0-.01,0-.02,0-.04.01-.01,0-.02,0-.03.01,0,0-.01,0-.02,0-.01,0-.02.01-.04.02,0,0-.02,0-.03.01,0,0-.02,0-.02.01-.01,0-.02.01-.03.02,0,0-.02.01-.03.02,0,0-.02.01-.02.02,0,0-.02.01-.03.02,0,0-.02.01-.03.02,0,0-.02.01-.02.02,0,0,0,0-.01,0,0,0,0,0-.01.01,0,0-.02.02-.03.03,0,0,0,0-.01.01l-4.18,4.48c-.37.4-.35,1.02.05,1.4.19.18.43.27.67.27.26,0,.53-.11.72-.31l2.47-2.65v11.53c0,.55.44.99.99.99s.99-.44.99-.99v-11.53l2.47,2.65c.19.21.46.31.72.31.24,0,.48-.09.67-.27.4-.37.42-1,.05-1.4l-4.18-4.48Z"/>
+						  </g>
+						</g>
+					  </g>
+					</svg>
+						<svg viewBox="0 0 36.7 37.63" width="31"  class="icon-hasFile"  fill="none" xmlns="http://www.w3.org/2000/svg">
+						    <defs>
+    <style>
+      .cls-12 {
+        fill: none;
+        stroke: #fff;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 4px;
+      }
+    </style>
+  </defs>
+						  <g id="Selections">
+							<g>
+							  <g>
+								<path class="cls-12" d="M2,20.45v-8.93c0-2.29,1.86-4.15,4.15-4.15h28.55l-8.06-5.37"/>
+								<line class="cls-12" x1="34.7" y1="7.37" x2="26.64" y2="12.86"/>
+							  </g>
+							  <g>
+								<path class="cls-12" d="M34.7,17.18v8.93c0,2.29-1.86,4.15-4.15,4.15H2s8.06,5.37,8.06,5.37"/>
+								<line class="cls-12" x1="2" y1="30.26" x2="10.06" y2="24.77"/>
+							  </g>
+							</g>
+						  </g>
+						</svg>
+                </span>
+            </div>
+        </label>
+          <span class="dyna-uploader-delete" data-id="dyna_uploader_{{id}}">
+              <svg width="22" height="25" viewBox="0 0 22 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21.2143 3.90625H17.1688L15.4992 1.13525C15.0317 0.431006 14.3098 0 13.4848 0H8.51518C7.69018 0 6.92411 0.431006 6.50179 1.13525L4.83116 3.90625H0.785714C0.349888 3.90625 0 4.25439 0 4.6875V5.46875C0 5.90332 0.349888 6.25 0.785714 6.25H1.57143V21.875C1.57143 23.6011 2.97835 25 4.71429 25H17.2857C19.0217 25 20.4286 23.6011 20.4286 21.875V6.25H21.2143C21.6513 6.25 22 5.90332 22 5.46875V4.6875C22 4.25439 21.6513 3.90625 21.2143 3.90625ZM8.44152 2.48438C8.49062 2.39893 8.58884 2.34375 8.69196 2.34375H13.308C13.4124 2.34375 13.5106 2.39868 13.5597 2.48413L14.4179 3.90625H7.58214L8.44152 2.48438ZM17.2857 22.6562H4.71429C4.28033 22.6562 3.92857 22.3065 3.92857 21.875V6.25H18.0714V21.875C18.0714 22.3047 17.7179 22.6562 17.2857 22.6562ZM11 20.3125C11.4343 20.3125 11.7857 19.9631 11.7857 19.5312V9.375C11.7857 8.94316 11.4343 8.59375 11 8.59375C10.5657 8.59375 10.2143 8.94531 10.2143 9.375V19.5312C10.2143 19.9609 10.5679 20.3125 11 20.3125ZM7.07143 20.3125C7.50357 20.3125 7.85714 19.9609 7.85714 19.5312V9.375C7.85714 8.94316 7.50573 8.59375 7.07143 8.59375C6.63713 8.59375 6.28571 8.94531 6.28571 9.375V19.5312C6.28571 19.9609 6.63929 20.3125 7.07143 20.3125ZM14.9286 20.3125C15.3629 20.3125 15.7143 19.9631 15.7143 19.5312V9.375C15.7143 8.94316 15.3629 8.59375 14.9286 8.59375C14.4943 8.59375 14.1429 8.94531 14.1429 9.375V19.5312C14.1429 19.9609 14.4964 20.3125 14.9286 20.3125Z" fill="#21C8E1"/>
+              </svg>
+            </span>
+	{{else}}
+		{{#if this.display_name "==" "Uploaded Logo Size"}}
+			{{#each custom_fields}} {{#if name '===' 's_logosize'}} {{assignVar "slopt" value}}  {{/if}} {{/each}} 
+			{{#eachIndex (split (getVar "slopt") '|')}}
+				{{#if index "==" 0}} {{assignVar "min" item}}{{/if}}
+				{{#if index "==" 1}} {{assignVar "max" item}}{{/if}}
+				{{#if index "==" 2}} {{assignVar "default" item}}{{/if}}
+				{{#if index "==" 3}} {{assignVar "step" item}}{{/if}}  
+			{{/eachIndex}}		
+			 <label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_text_{{id}}">
+			{{ this.display_name }} 				
+			{{> components/common/requireness-msg}}
+			</label>
+			<div class="slider-container">			
+				<input type="range" min="{{getVar 'min'}}" max="{{getVar 'max'}}" value="{{getVar 'default'}}" step="{{getVar 'step'}}" class="slider-sizeimg slider range_image-position" id="textPositionSlider_{{id}}" onchange="updateImagePosition(this.value,'image-position');" >			
+				<input class="form-input form-input--small image-position" type="text" id="attribute_text_{{id}}" name="attribute[{{this.id}}]" value="{{getVar 'default'}}" {{#if required}}required{{/if}} {{#if max_length}}maxlength="{{max_length}}"{{/if}}>
+			</div>	
+		{{else if this.display_name "==" "Font1size"}}
+			{{#each custom_fields}} {{#if name '===' 's_fontsize1'}} {{assignVar "slopt1" value}}  {{/if}} {{/each}} 
+			{{#eachIndex (split (getVar "slopt1") '|')}}
+				{{#if index "==" 0}} {{assignVar "min" item}}{{/if}}
+				{{#if index "==" 1}} {{assignVar "max" item}}{{/if}}
+				{{#if index "==" 2}} {{assignVar "default" item}}{{/if}}
+				{{#if index "==" 3}} {{assignVar "step" item}}{{/if}}  
+			{{/eachIndex}}		
+			 <label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_text_{{id}}">
+			{{ this.display_name }}
+			{{> components/common/requireness-msg}}
+			</label>
+			<div class="slider-container">			
+				<input type="range" min="{{getVar 'min'}}" max="{{getVar 'max'}}" value="{{getVar 'default'}}" step="{{getVar 'step'}}" class="slider-sizeimg slider range_font1size" id="textPositionSlider_{{id}}" onchange="updateImagePosition(this.value,'font1size');" >			
+				<input class="form-input form-input--small font1size" type="text" id="attribute_text_{{id}}" name="attribute[{{this.id}}]" value="{{getVar 'default'}}" {{#if required}}required{{/if}} {{#if max_length}}maxlength="{{max_length}}"{{/if}}>
+			</div>			
+		{{else if this.display_name "==" "Font2size"}}	
+			{{#each custom_fields}} {{#if name '===' 's_fontsize2'}} {{assignVar "slopt2" value}}  {{/if}} {{/each}} 
+			{{#eachIndex (split (getVar "slopt2") '|')}}
+				{{#if index "==" 0}} {{assignVar "min" item}}{{/if}}
+				{{#if index "==" 1}} {{assignVar "max" item}}{{/if}}
+				{{#if index "==" 2}} {{assignVar "default" item}}{{/if}}
+				{{#if index "==" 3}} {{assignVar "step" item}}{{/if}}  
+			{{/eachIndex}}			
+			 <label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_text_{{id}}">
+			{{ this.display_name }}
+			{{> components/common/requireness-msg}}
+			</label>
+			<div class="slider-container">			
+				<input type="range" min="{{getVar 'min'}}" max="{{getVar 'max'}}" value="{{getVar 'default'}}" step="{{getVar 'step'}}" class="slider-sizeimg slider range_font2size" id="textPositionSlider_{{id}}" onchange="updateImagePosition(this.value,'font2size');" >			
+				<input class="form-input form-input--small font2size" type="text" id="attribute_text_{{id}}" name="attribute[{{this.id}}]" value="{{getVar 'default'}}" {{#if required}}required{{/if}} {{#if max_length}}maxlength="{{max_length}}"{{/if}}>
+			</div>			
+			
+		{{else if this.display_name "==" "Font3size"}}	
+			{{#each custom_fields}} {{#if name '===' 's_fontsize3'}} {{assignVar "slopt3" value}}  {{/if}} {{/each}} 
+			{{#eachIndex (split (getVar "slopt3") '|')}}
+				{{#if index "==" 0}} {{assignVar "min" item}}{{/if}}
+				{{#if index "==" 1}} {{assignVar "max" item}}{{/if}}
+				{{#if index "==" 2}} {{assignVar "default" item}}{{/if}}
+				{{#if index "==" 3}} {{assignVar "step" item}}{{/if}}  
+			{{/eachIndex}}			
+			 <label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_text_{{id}}">
+			{{ this.display_name }}
+			{{> components/common/requireness-msg}}
+			</label>
+			<div class="slider-container">			
+				<input type="range" min="{{getVar 'min'}}" max="{{getVar 'max'}}" value="{{getVar 'default'}}" step="{{getVar 'step'}}" class="slider-sizeimg slider range_font3size" id="textPositionSlider_{{id}}" onchange="updateImagePosition(this.value,'font3size');" >			
+				<input class="form-input form-input--small font3size" type="text" id="attribute_text_{{id}}" name="attribute[{{this.id}}]" value="{{getVar 'default'}}" {{#if required}}required{{/if}} {{#if max_length}}maxlength="{{max_length}}"{{/if}}>
+			</div>	
+			
+		{{else if this.display_name "==" "Image Placement"}}
+		<label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_text_{{id}}">
+			{{ this.display_name }}
+			{{> components/common/requireness-msg}}
+		</label>
+		   
+			<div class="img_resizer">
+			<input {{this.name}} class="form-input form-input--small adjustimageposition-x" type="text" id="attribute_text_{{id}}" name="attribute[{{this.id}}]" value="{{#each custom_fields}}{{#if name '==' 's_imgposH'}}{{value}}{{/if}}{{/each}}" {{#if required}}required{{/if}} {{#if max_length}}maxlength="{{max_length}}"{{/if}}>				
+				<div class="imgbtn_wrapper">
+					
+					
+					
+					<button class="xless">
+						<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+					<button class="ymore">
+					<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+					<button class="yless">
+					    <svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					
+					</button>
+					<button class="xmore">
+					<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+				</div>
+			</div>
+			
+		{{else if this.display_name "==" "Image Placement V"}}
+		<label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_text_{{id}}">
+        {{ this.display_name }}
+        {{> components/common/requireness-msg}}
+		</label>
+		<input {{this.name}}  class="form-input form-input--small adjustimageposition-y" type="text" id="attribute_text_{{id}}" name="attribute[{{this.id}}]" value="{{#each custom_fields}}{{#if name '==' 's_imgposV'}}{{value}}{{/if}}{{/each}}" {{#if required}}required{{/if}} {{#if max_length}}maxlength="{{max_length}}"{{/if}}>
+		
+		{{else if this.display_name "==" "Text Placement H"}}
+		<label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_text_{{id}}">
+			{{ this.display_name }}
+			{{> components/common/requireness-msg}}
+		</label>
+		   
+			<div class="img_resizer">
+			<input {{this.name}} class="form-input form-input--small adjusttextposition-x" type="text" id="attribute_text_{{id}}" name="attribute[{{this.id}}]" value="{{#each custom_fields}}{{#if name '==' 's_textposH'}}{{value}}{{/if}}{{/each}}" {{#if required}}required{{/if}} {{#if max_length}}maxlength="{{max_length}}"{{/if}}>				
+				<div class="imgbtn_wrapper_txt">
+				<button class="xless">
+						<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+					<button class="ymore">
+					<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+					<button class="yless">
+					    <svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					
+					</button>
+					<button class="xmore">
+					<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+				</div>
+			</div>
+		{{else if this.display_name "==" "Logo Placement"}}
+		<label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_text_{{id}}">
+			{{ this.display_name }}
+			{{> components/common/requireness-msg}}
+		</label>
+		   
+			<div class="img_resizer">
+			<input {{this.name}} class="form-input form-input--small adjustimageposition-x" type="text" id="attribute_text_{{id}}" name="attribute[{{this.id}}]" value="{{#each custom_fields}}{{#if name '==' 's_imgposH'}}{{value}}{{/if}}{{/each}}" {{#if required}}required{{/if}} {{#if max_length}}maxlength="{{max_length}}"{{/if}}>				
+				<div class="imgbtn_wrapper">
+					
+					
+					
+					<button class="xless">
+						<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+					<button class="ymore">
+					<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+					<button class="yless">
+					    <svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					
+					</button>
+					<button class="xmore">
+					<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+				</div>
+			</div>
+			
+		{{else if this.display_name "==" "Logo Placement V"}}
+		<label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_text_{{id}}">
+        {{ this.display_name }}
+        {{> components/common/requireness-msg}}
+		</label>
+		<input {{this.name}}  class="form-input form-input--small adjustimageposition-y" type="text" id="attribute_text_{{id}}" name="attribute[{{this.id}}]" value="{{#each custom_fields}}{{#if name '==' 's_imgposV'}}{{value}}{{/if}}{{/each}}" {{#if required}}required{{/if}} {{#if max_length}}maxlength="{{max_length}}"{{/if}}>
+		
+		{{else if this.display_name "==" "Text Placement H"}}
+		<label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_text_{{id}}">
+			{{ this.display_name }}
+			{{> components/common/requireness-msg}}
+		</label>
+		   
+			<div class="img_resizer">
+			<input {{this.name}} class="form-input form-input--small adjusttextposition-x" type="text" id="attribute_text_{{id}}" name="attribute[{{this.id}}]" value="{{#each custom_fields}}{{#if name '==' 's_textposH'}}{{value}}{{/if}}{{/each}}" {{#if required}}required{{/if}} {{#if max_length}}maxlength="{{max_length}}"{{/if}}>				
+				<div class="imgbtn_wrapper_txt">
+				<button class="xless">
+						<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+					<button class="ymore">
+					<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+					<button class="yless">
+					    <svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					
+					</button>
+					<button class="xmore">
+					<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+				</div>
+			</div>			
+		{{else if this.display_name "==" "Text Placement V"}}
+		<label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_text_{{id}}">
+        {{ this.display_name }}
+        {{> components/common/requireness-msg}}
+		</label>
+		<input {{this.name}}  class="form-input form-input--small adjusttextposition-y" type="text" id="attribute_text_{{id}}" name="attribute[{{this.id}}]" value="{{#each custom_fields}}{{#if name '==' 's_textposV'}}{{value}}{{/if}}{{/each}}" {{#if required}}required{{/if}} {{#if max_length}}maxlength="{{max_length}}"{{/if}}>
+		
+		{{else if this.display_name "==" "Name Placement H"}}
+		<label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_text_{{id}}">
+			{{ this.display_name }}
+			{{> components/common/requireness-msg}}
+		</label>
+		   
+			<div class="img_resizer">
+			<input {{this.name}} class="form-input form-input--small adjusttextposition-x" type="text" id="attribute_text_{{id}}" name="attribute[{{this.id}}]" value="{{#each custom_fields}}{{#if name '==' 's_nameposH'}}{{value}}{{/if}}{{/each}}" {{#if required}}required{{/if}} {{#if max_length}}maxlength="{{max_length}}"{{/if}}>				
+				<div class="imgbtn_wrapper_txt">
+				<button class="xless">
+						<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+					<button class="ymore">
+					<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+					<button class="yless">
+					    <svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					
+					</button>
+					<button class="xmore">
+					<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+				</div>
+			</div>			
+		{{else if this.display_name "==" "Name Placement V"}}
+		<label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_text_{{id}}">
+        {{ this.display_name }}
+        {{> components/common/requireness-msg}}
+		</label>
+		<input {{this.name}}  class="form-input form-input--small adjusttextposition-y" type="text" id="attribute_text_{{id}}" name="attribute[{{this.id}}]" value="{{#each custom_fields}}{{#if name '==' 's_nameposV'}}{{value}}{{/if}}{{/each}}" {{#if required}}required{{/if}} {{#if max_length}}maxlength="{{max_length}}"{{/if}}>
+		
+		{{else if this.display_name "==" "Title Placement H"}}
+		<label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_text_{{id}}">
+			{{ this.display_name }}
+			{{> components/common/requireness-msg}}
+		</label>
+		   
+			<div class="img_resizer">
+			<input {{this.name}} class="form-input form-input--small adjusttext2position-x" type="text" id="attribute_text_{{id}}" name="attribute[{{this.id}}]" value="{{#each custom_fields}}{{#if name '==' 's_titleposH'}}{{value}}{{/if}}{{/each}}" {{#if required}}required{{/if}} {{#if max_length}}maxlength="{{max_length}}"{{/if}}>				
+				<div class="imgbtn_wrapper_txt txt2">
+				<button class="xless">
+						<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+					<button class="ymore">
+					<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+					<button class="yless">
+					    <svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					
+					</button>
+					<button class="xmore">
+					<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+				</div>
+			</div>			
+		{{else if this.display_name "==" "Title Placement V"}}
+		<label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_text_{{id}}">
+        {{ this.display_name }}
+        {{> components/common/requireness-msg}}
+		</label>
+		<input {{this.name}}  class="form-input form-input--small adjusttext2position-y" type="text" id="attribute_text_{{id}}" name="attribute[{{this.id}}]" value="{{#each custom_fields}}{{#if name '==' 's_titleposV'}}{{value}}{{/if}}{{/each}}" {{#if required}}required{{/if}} {{#if max_length}}maxlength="{{max_length}}"{{/if}}>
+		
+		
+		{{else if this.display_name "==" "Badge Text Placement H"}}
+		<label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_text_{{id}}">
+			{{ this.display_name }}
+			{{> components/common/requireness-msg}}
+		</label>
+		   
+			<div class="img_resizer">
+			<input {{this.name}} class="form-input form-input--small adjusttext3position-x" type="text" id="attribute_text_{{id}}" name="attribute[{{this.id}}]" value="{{#each custom_fields}}{{#if name '==' 's_btextposH'}}{{value}}{{/if}}{{/each}}" {{#if required}}required{{/if}} {{#if max_length}}maxlength="{{max_length}}"{{/if}}>				
+				<div class="imgbtn_wrapper_txt txt3">
+				<button class="xless">
+						<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+					<button class="ymore">
+					<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+					<button class="yless">
+					    <svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					
+					</button>
+					<button class="xmore">
+					<svg fill="#21c8e1" width="" height="" viewBox="0 0 75.73 127.14" version="1.1" xmlns="http://www.w3.org/2000/svg">
+							<path class="cls-1" d="M16.02,125.74c-1.87,1.87-4.89,1.87-6.75,0l-7.86-7.86c-1.87-1.87-1.87-4.89,0-6.75l47.07-47.55L1.4,16.02c-1.87-1.87-1.87-4.89,0-6.75L9.27,1.4c1.87-1.87,4.89-1.87,6.75,0l58.32,58.79c1.87,1.87,1.87,4.89,0,6.75l-58.32,58.79Z"/>
+						</svg>
+					</button>
+				</div>
+			</div>			
+		{{else if this.display_name "==" "Badge Text Placement V"}}
+		<label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_text_{{id}}">
+        {{ this.display_name }}
+        {{> components/common/requireness-msg}}
+		</label>
+		<input {{this.name}}  class="form-input form-input--small adjusttext3position-y" type="text" id="attribute_text_{{id}}" name="attribute[{{this.id}}]" value="{{#each custom_fields}}{{#if name '==' 's_btextposV'}}{{value}}{{/if}}{{/each}}" {{#if required}}required{{/if}} {{#if max_length}}maxlength="{{max_length}}"{{/if}}>
+		
+		
+		{{else}}
+    <label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_text_{{id}}">
+        {{ this.display_name }}
+        {{> components/common/requireness-msg}}
+    </label>
+
+    <input {{this.name}} {{#if this.display_name "==" "Color"}} data-colorpk {{/if}} {{#if this.display_name "==" "Custom Color"}} data-colorpk {{/if}} class="form-input form-input--small" type="text" id="attribute_text_{{id}}" name="attribute[{{this.id}}]" value="{{this.prefill}}" {{#if required}}required{{/if}} {{#if max_length}}maxlength="{{max_length}}"{{/if}}>
+		{{/if}}
+	{{/contains}}
+</div>
