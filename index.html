@@ -134,6 +134,7 @@
       font-size: 36px; font-weight: 700;
       line-height: 1.15; margin-bottom: 20px;
       max-width: 600px; margin-left: auto; margin-right: auto;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
     }
     .hero-rating {
       display: inline-flex; align-items: center; gap: 12px;
@@ -145,8 +146,9 @@
     .hero-rating-text { font-size: 14px; color: var(--gray-600); }
     .hero-rating-text strong { color: var(--gray-900); }
     .hero p {
-      font-size: 17px; color: var(--gray-600);
+      font-size: 17px; color: rgba(255,255,255,0.9);
       max-width: 500px; margin: 0 auto 32px;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.4);
     }
     .hero-actions { display: flex; flex-direction: column; gap: 12px; align-items: center; }
 
@@ -501,7 +503,7 @@
     <source media="(max-width: 768px)" srcset="assets/hero/hero-mobile.png">
     <img src="assets/hero/hero-desktop.png" alt="Custom Genie Products" style="width: 100%; height: 100%; object-fit: cover;">
   </picture>
-  <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(15,23,42,0.92) 0%, rgba(15,23,42,0.75) 100%);"></div>
+  <div style="position: absolute; inset: 0; background: rgba(15,23,42,0.88);"></div>
   <div class="container" style="position: relative; z-index: 1;">
     <div class="hero-badge">
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
